@@ -253,6 +253,7 @@ fun MainApp(viewModel: MainViewModel) {
                         onToggleFarming = { enabled -> viewModel.updateBotConfig { it.copy(isFarmingEnabled = enabled) } },
                         onToggleMining = { enabled -> viewModel.updateBotConfig { it.copy(isMiningEnabled = enabled) } },
                         onTogglePunishEvil = { enabled -> viewModel.updateBotConfig { it.copy(isPunishEvilEnabled = enabled) } },
+                        onUpdateCharacterProfile = { newConfig -> viewModel.updateBotConfig { newConfig } },
                         onNavigateToTab = { tabIndex -> selectedTab = tabIndex }
                     )
 

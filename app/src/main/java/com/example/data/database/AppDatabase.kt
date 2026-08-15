@@ -26,7 +26,7 @@ import com.example.data.entity.PunishEvilConfigEntity
         BotLogEntity::class,
         DailyStatsEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

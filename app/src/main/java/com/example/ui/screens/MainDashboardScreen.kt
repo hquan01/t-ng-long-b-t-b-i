@@ -52,6 +52,7 @@ import com.example.data.entity.DailyStatsEntity
 import com.example.engine.LiveBotState
 import com.example.model.TaskCategory
 import com.example.ui.components.BotLiveMonitorCard
+import com.example.ui.components.CharacterProfileCard
 import com.example.ui.components.HeroHeaderCard
 import com.example.ui.theme.CrimsonPrimary
 import com.example.ui.theme.GoldPrimary
@@ -81,6 +82,7 @@ fun MainDashboardScreen(
     onToggleFarming: (Boolean) -> Unit,
     onToggleMining: (Boolean) -> Unit,
     onTogglePunishEvil: (Boolean) -> Unit,
+    onUpdateCharacterProfile: (BotConfigEntity) -> Unit = {},
     onNavigateToTab: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -97,12 +99,20 @@ fun MainDashboardScreen(
         // 1. Hero Header with start/stop/pause
         HeroHeaderCard(
             liveState = liveState,
+            botConfig = botConfig,
             onStart = onStart,
             onPause = onPause,
             onResume = onResume,
             onStop = onStop,
             onToggleBlackScreen = onToggleBlackScreen,
             onToggleFloatingWidget = onToggleFloatingWidget
+        )
+
+        // 2. Thẻ Thông Tin Chi Tiết Nhân Vật Đang Chạy Auto
+        CharacterProfileCard(
+            botConfig = botConfig,
+            liveState = liveState,
+            onUpdateCharacterProfile = onUpdateCharacterProfile
         )
 
         // Banner Hướng Dẫn Tự Động Chạm Trực Tiếp Trên Màn Hình Game Tàng Long

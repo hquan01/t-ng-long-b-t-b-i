@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -69,6 +72,7 @@ jobs:
           APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
           if [ -f "$APK_PATH" ]; then
             echo "Debug APK found at $APK_PATH"
+            cp "$APK_PATH" "./TangLongAuto-Debug.apk"
           else
             echo "Error: $APK_PATH is missing!"
             echo "Searching for any generated APKs in app/build/outputs/apk:"
@@ -86,12 +90,19 @@ jobs:
 
       - name: Create GitHub Release with direct APK
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          files: app/build/outputs/apk/debug/app-debug.apk
-          tag_name: latest-build
-          name: "Bản Cài Đặt Tàng Long Auto (APK Trực Tiếp)"
-          body: "Tải file APK trực tiếp bên dưới về điện thoại để cài đặt (không cần giải nén file zip)."
+          files: |
+            ./TangLongAuto-Debug.apk
+            app/build/outputs/apk/debug/app-debug.apk
+          tag_name: v1.0.0
+          name: "Bản Cài Đặt Tàng Long Auto (Tải Trực Tiếp Không Cần Giải Nén)"
+          body: |
+            ### Hướng dẫn cài đặt trực tiếp:
+            1. Bấm tải trực tiếp file **`TangLongAuto-Debug.apk`** ở mục **Assets** bên dưới về điện thoại.
+            2. Mở file và bấm **Cài đặt** ngay (Không cần dùng ZArchiver hay giải nén file zip).
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 

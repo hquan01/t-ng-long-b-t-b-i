@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Remove
@@ -30,6 +31,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -119,11 +122,9 @@ fun SettingsSecurityScreen(
         }
 
         // Sect & Character Profile
-        SectSelectorCard(
-            selectedSect = botConfig.sect,
-            onSelectSect = { sect ->
-                onUpdateBotConfig { it.copy(sect = sect) }
-            }
+        CharacterSettingsCard(
+            botConfig = botConfig,
+            onUpdateBotConfig = onUpdateBotConfig
         )
 
         // Anti-Ban & Human-like Jitter Delay
@@ -268,9 +269,9 @@ fun SettingsSecurityScreen(
 }
 
 @Composable
-private fun SectSelectorCard(
-    selectedSect: SectType,
-    onSelectSect: (SectType) -> Unit,
+private fun CharacterSettingsCard(
+    botConfig: BotConfigEntity,
+    onUpdateBotConfig: ((BotConfigEntity) -> BotConfigEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -281,17 +282,62 @@ private fun SectSelectorCard(
         border = androidx.compose.foundation.BorderStroke(1.dp, InkCardBorder),
         modifier = modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Text(
-                text = "MÔN PHÁI NHÂN VẬT (TỐI ƯU HÓA COMBO CHIÊU)",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextSecondary,
-                letterSpacing = 0.5.sp
-            )
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null,
+                    tint = GoldPrimary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "THÔNG TIN NHÂN VẬT ĐANG CHẠY AUTO",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextGold,
+                    letterSpacing = 0.5.sp
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Tên & Server
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = botConfig.characterName,
+                    onValueChange = { name -> onUpdateBotConfig { it.copy(characterName = name) } },
+                    label = { Text("Tên nhân vật") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = JadePrimary,
+                        unfocusedBorderColor = Color(0xFF263A32)
+                    ),
+                    modifier = Modifier.weight(1.2f)
+                )
 
+                OutlinedTextField(
+                    value = botConfig.serverName,
+                    onValueChange = { srv -> onUpdateBotConfig { it.copy(serverName = srv) } },
+                    label = { Text("Máy chủ") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = JadePrimary,
+                        unfocusedBorderColor = Color(0xFF263A32)
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Chọn Môn phái
             Box(modifier = Modifier.fillMaxWidth()) {
                 Surface(
                     color = Color(0xFF0F1814),
@@ -310,19 +356,19 @@ private fun SectSelectorCard(
                     ) {
                         Column {
                             Text(
-                                text = selectedSect.sectName,
-                                fontSize = 14.sp,
+                                text = "Môn phái: ${botConfig.sect.sectName}",
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextGold
                             )
                             Text(
-                                text = selectedSect.specialty,
-                                fontSize = 11.sp,
+                                text = botConfig.sect.specialty,
+                                fontSize = 10.sp,
                                 color = TextMuted
                             )
                         }
 
-                        Text(text = "Đổi Môn Phái ▼", color = JadePrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Đổi Phái ▼", color = JadePrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -340,12 +386,49 @@ private fun SectSelectorCard(
                                 }
                             },
                             onClick = {
-                                onSelectSect(sect)
+                                onUpdateBotConfig { it.copy(sect = sect) }
                                 expanded = false
                             }
                         )
                     }
                 }
+            }
+
+            // Cấp độ, Lực chiến, Bang hội
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = botConfig.characterLevel.toString(),
+                    onValueChange = { lvlStr ->
+                        val lvl = lvlStr.filter { it.isDigit() }.toIntOrNull() ?: botConfig.characterLevel
+                        onUpdateBotConfig { it.copy(characterLevel = lvl) }
+                    },
+                    label = { Text("Cấp Lv") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = JadePrimary,
+                        unfocusedBorderColor = Color(0xFF263A32)
+                    ),
+                    modifier = Modifier.weight(0.8f)
+                )
+
+                OutlinedTextField(
+                    value = botConfig.guildName,
+                    onValueChange = { g -> onUpdateBotConfig { it.copy(guildName = g) } },
+                    label = { Text("Bang hội") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedBorderColor = JadePrimary,
+                        unfocusedBorderColor = Color(0xFF263A32)
+                    ),
+                    modifier = Modifier.weight(1.2f)
+                )
             }
         }
     }

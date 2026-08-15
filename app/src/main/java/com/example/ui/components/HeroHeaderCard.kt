@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.data.entity.BotConfigEntity
 import com.example.engine.LiveBotState
 import com.example.model.BotStatus
 import com.example.ui.theme.CrimsonDark
@@ -63,6 +64,7 @@ import com.example.ui.theme.TextSecondary
 @Composable
 fun HeroHeaderCard(
     liveState: LiveBotState,
+    botConfig: BotConfigEntity? = null,
     onStart: () -> Unit,
     onPause: () -> Unit,
     onResume: () -> Unit,
@@ -179,7 +181,7 @@ fun HeroHeaderCard(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Tiêu Dao Phái • Cấp 85",
+                            text = "${botConfig?.characterName ?: "Long Phi Kiếm Hiệp"} • ${botConfig?.sect?.sectName ?: "Tiêu Dao"} • Cấp ${botConfig?.characterLevel ?: 89}",
                             fontSize = 12.sp,
                             color = TextPrimary,
                             fontWeight = FontWeight.Medium

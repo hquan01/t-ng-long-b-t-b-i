@@ -326,6 +326,9 @@ class FloatingOverlayService : Service() {
             BotAutomationEngine.liveState.collectLatest { state ->
                 val btnPauseResume = floatingView?.findViewById<ImageView>(R.id.btn_floating_pause_resume)
                 val tvStatus = floatingView?.findViewById<TextView>(R.id.tv_floating_status)
+                val tvCharacter = floatingView?.findViewById<TextView>(R.id.tv_floating_character)
+
+                tvCharacter?.text = "${state.characterName} • ${state.sectName} Lv.${state.characterLevel}"
 
                 when (state.status) {
                     BotStatus.RUNNING -> {

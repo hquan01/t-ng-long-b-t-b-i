@@ -32,6 +32,11 @@ data class LiveBotState(
     val actionText: String = "Sẵn sàng khởi động trợ lý rảnh tay",
     val subActionDetail: String = "Chọn tác vụ hoặc nhấn Bắt Đầu Auto để tiến hành",
     val currentMapName: String = "Thành Lạc Dương (Khu An Toàn)",
+    val characterName: String = "Long Phi Kiếm Hiệp",
+    val sectName: String = "Tiêu Dao",
+    val characterLevel: Int = 89,
+    val serverName: String = "S1 - Tàng Long",
+    val combatPower: Long = 1458900L,
     val playerHpPercent: Int = 100,
     val playerMpPercent: Int = 100,
     val playerStaminaPercent: Int = 100,
@@ -52,6 +57,7 @@ object BotAutomationEngine {
 
     private val engineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var loopJob: Job? = null
+    private var configObserveJob: Job? = null
 
     private val _liveState = MutableStateFlow(LiveBotState())
     val liveState: StateFlow<LiveBotState> = _liveState.asStateFlow()
@@ -60,6 +66,20 @@ object BotAutomationEngine {
 
     fun initialize(repo: BotRepository) {
         repository = repo
+        configObserveJob?.cancel()
+        configObserveJob = engineScope.launch {
+            repo.botConfig.collect { config ->
+                if (config != null) {
+                    _liveState.value = _liveState.value.copy(
+                        characterName = config.characterName,
+                        sectName = config.sect.sectName,
+                        characterLevel = config.characterLevel,
+                        serverName = config.serverName,
+                        combatPower = config.combatPower
+                    )
+                }
+            }
+        }
     }
 
     fun startService(context: Context) {

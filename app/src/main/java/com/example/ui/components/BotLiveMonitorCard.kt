@@ -134,7 +134,41 @@ fun BotLiveMonitorCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Active Character Indicator Banner
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFF101C17))
+                    .border(1.dp, Color(0xFF1D352B), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Nhân vật: ",
+                        fontSize = 11.sp,
+                        color = TextMuted
+                    )
+                    Text(
+                        text = "${liveState.characterName} (${liveState.sectName} Lv.${liveState.characterLevel})",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextGold
+                    )
+                }
+                Text(
+                    text = liveState.serverName,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextJade
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Action Terminal / Console Feed
             Surface(
