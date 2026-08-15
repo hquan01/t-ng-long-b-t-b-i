@@ -50,6 +50,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val punishEvilConfig: StateFlow<PunishEvilConfigEntity?> = repository.punishEvilConfig
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PunishEvilConfigEntity())
 
+    val customActionSteps: StateFlow<List<com.example.data.entity.CustomActionStepEntity>> = repository.customActionSteps
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     val recentLogs: StateFlow<List<BotLogEntity>> = repository.recentLogs
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -190,6 +193,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val current = punishEvilConfig.value ?: PunishEvilConfigEntity()
             val newConfig = update(current)
             repository.updatePunishEvilConfig(newConfig)
+        }
+    }
+
+    // Custom Action Step Operations
+    fun addCustomActionStep(step: com.example.data.entity.CustomActionStepEntity) {
+        viewModelScope.launch {
+            repository.addCustomActionStep(step)
+        }
+    }
+
+    fun updateCustomActionStep(step: com.example.data.entity.CustomActionStepEntity) {
+        viewModelScope.launch {
+            repository.updateCustomActionStep(step)
+        }
+    }
+
+    fun deleteCustomActionStep(id: Long) {
+        viewModelScope.launch {
+            repository.deleteCustomActionStep(id)
+        }
+    }
+
+    fun resetDefaultCustomActionSteps() {
+        viewModelScope.launch {
+            repository.clearAllCustomActionSteps()
+            repository.initializeDefaultDataIfEmpty()
         }
     }
 

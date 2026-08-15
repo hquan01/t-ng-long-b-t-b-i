@@ -23,10 +23,11 @@ import com.example.data.entity.PunishEvilConfigEntity
         FarmPlotEntity::class,
         MiningConfigEntity::class,
         PunishEvilConfigEntity::class,
+        com.example.data.entity.CustomActionStepEntity::class,
         BotLogEntity::class,
         DailyStatsEntity::class
     ],
-    version = 4,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

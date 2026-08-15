@@ -103,6 +103,7 @@ fun MainApp(viewModel: MainViewModel) {
     val farmPlots by viewModel.farmPlots.collectAsStateWithLifecycle()
     val miningConfig by viewModel.miningConfig.collectAsStateWithLifecycle()
     val punishEvilConfig by viewModel.punishEvilConfig.collectAsStateWithLifecycle()
+    val customActionSteps by viewModel.customActionSteps.collectAsStateWithLifecycle()
     val recentLogs by viewModel.recentLogs.collectAsStateWithLifecycle()
     val dailyStats by viewModel.dailyStats.collectAsStateWithLifecycle()
 
@@ -285,8 +286,13 @@ fun MainApp(viewModel: MainViewModel) {
                     4 -> PunishEvilScreen(
                         botConfig = safeBotConfig,
                         punishEvilConfig = safePunishEvilConfig,
+                        customActionSteps = customActionSteps,
                         onUpdateBotConfig = viewModel::updateBotConfig,
-                        onUpdatePunishEvilConfig = viewModel::updatePunishEvilConfig
+                        onUpdatePunishEvilConfig = viewModel::updatePunishEvilConfig,
+                        onAddActionStep = viewModel::addCustomActionStep,
+                        onUpdateActionStep = viewModel::updateCustomActionStep,
+                        onDeleteActionStep = viewModel::deleteCustomActionStep,
+                        onResetDefaultSteps = viewModel::resetDefaultCustomActionSteps
                     )
 
                     5 -> {

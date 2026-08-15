@@ -21,17 +21,38 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.MilitaryTech
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,11 +87,18 @@ import com.example.ui.theme.TextSecondary
 fun PunishEvilScreen(
     botConfig: BotConfigEntity,
     punishEvilConfig: PunishEvilConfigEntity,
+    customActionSteps: List<com.example.data.entity.CustomActionStepEntity>,
     onUpdateBotConfig: ((BotConfigEntity) -> BotConfigEntity) -> Unit,
     onUpdatePunishEvilConfig: ((PunishEvilConfigEntity) -> PunishEvilConfigEntity) -> Unit,
+    onAddActionStep: (com.example.data.entity.CustomActionStepEntity) -> Unit,
+    onUpdateActionStep: (com.example.data.entity.CustomActionStepEntity) -> Unit,
+    onDeleteActionStep: (Long) -> Unit,
+    onResetDefaultSteps: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    var showAddDialog by remember { mutableStateOf(false) }
+    var editingStep by remember { mutableStateOf<com.example.data.entity.CustomActionStepEntity?>(null) }
 
     Column(
         modifier = modifier
@@ -306,7 +334,255 @@ fun PunishEvilScreen(
             testTag = "switch_auto_buy_tokens"
         )
 
+        // QUẢN LÝ DANH SÁCH HÀNH ĐỘNG AUTO (THÊM, SỬA, XÓA & LƯU LẠI)
+        Card(
+            colors = CardDefaults.cardColors(containerColor = InkCard),
+            shape = RoundedCornerShape(14.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary.copy(alpha = 0.6f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.FormatListNumbered,
+                            contentDescription = null,
+                            tint = GoldPrimary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                text = "TRÌNH QUẢN LÝ CHUỖI HÀNH ĐỘNG",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextGold
+                            )
+                            Text(
+                                text = "Thêm, sửa, xóa các bước & lưu cố định vào bộ nhớ",
+                                fontSize = 11.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
+
+                    Row {
+                        OutlinedButton(
+                            onClick = onResetDefaultSteps,
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary),
+                            modifier = Modifier.height(34.dp),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Khôi phục", modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Mặc Định", fontSize = 11.sp)
+                        }
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        Button(
+                            onClick = { showAddDialog = true },
+                            colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary, contentColor = Color.Black),
+                            modifier = Modifier.height(34.dp),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Thêm", modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Thêm Bước", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                if (customActionSteps.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Chưa có bước hành động nào. Hãy bấm 'Mặc Định' hoặc 'Thêm Bước'!",
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                } else {
+                    customActionSteps.forEachIndexed { index, step ->
+                        ActionStepItemRow(
+                            stepIndex = index + 1,
+                            step = step,
+                            onToggleEnabled = { isChecked ->
+                                onUpdateActionStep(step.copy(isEnabled = isChecked))
+                            },
+                            onEdit = {
+                                editingStep = step
+                            },
+                            onDelete = {
+                                onDeleteActionStep(step.id)
+                            },
+                            onQuickDelayChange = { newDelay ->
+                                onUpdateActionStep(step.copy(delaySeconds = newDelay))
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // TÙY CHỈNH THỜI GIAN CHỜ TỪNG HÀNH ĐỘNG (ACTION DELAY TIMINGS)
+        Card(
+            colors = CardDefaults.cardColors(containerColor = InkCard),
+            shape = RoundedCornerShape(14.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary.copy(alpha = 0.5f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Timer,
+                        contentDescription = null,
+                        tint = GoldPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = "TÙY CHỈNH THỜI GIAN CHỜ TỪNG HÀNH ĐỘNG",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextGold
+                        )
+                        Text(
+                            text = "Tăng/giảm số giây chờ phù hợp với tốc độ mạng & cấu hình máy của bạn",
+                            fontSize = 11.sp,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                ActionDelayAdjuster(
+                    title = "1. Chờ mở bảng Ngô Giới",
+                    subtitle = "Thời gian chờ sau khi chạm bong bóng đối thoại NPC",
+                    valueSec = punishEvilConfig.delayOpenNpcDialogSec,
+                    minVal = 1,
+                    maxVal = 10,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayOpenNpcDialogSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "2. Chờ chọn dòng Trừng Trị",
+                    subtitle = "Thời gian chờ để hệ thống chọn mục Trừng Trị Hung Đồ",
+                    valueSec = punishEvilConfig.delaySelectQuestSec,
+                    minVal = 1,
+                    maxVal = 8,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delaySelectQuestSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "3. Chờ nhận nhiệm vụ",
+                    subtitle = "Thời gian chờ server phát Lệnh bài vào Túi đồ",
+                    valueSec = punishEvilConfig.delayAcceptQuestSec,
+                    minVal = 1,
+                    maxVal = 10,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayAcceptQuestSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "4. Chờ mở bảng Túi Đồ",
+                    subtitle = "Thời gian chờ hiển thị giao diện Túi Đồ",
+                    valueSec = punishEvilConfig.delayOpenBagSec,
+                    minVal = 1,
+                    maxVal = 8,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayOpenBagSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "5. Chờ chọn Tab Nhiệm Vụ",
+                    subtitle = "Thời gian chờ chuyển sang ngăn chứa Lệnh bài",
+                    valueSec = punishEvilConfig.delaySelectTabSec,
+                    minVal = 1,
+                    maxVal = 8,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delaySelectTabSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "6. Chờ bấm Lệnh Bài",
+                    subtitle = "Thời gian chờ hiện popup sử dụng & tọa độ gợi ý",
+                    valueSec = punishEvilConfig.delayUseTokenSec,
+                    minVal = 1,
+                    maxVal = 10,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayUseTokenSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "7. Chờ chạy đến bãi Boss (Tọa độ)",
+                    subtitle = "Thời gian phi thân / cưỡi thú chạy từ Tô Châu tới bãi quái",
+                    valueSec = punishEvilConfig.delayTravelToBossSec,
+                    minVal = 5,
+                    maxVal = 60,
+                    step = 2,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayTravelToBossSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "8. Chờ xuống ngựa & gọi Boss",
+                    subtitle = "Thời gian tắt thú cưỡi và dùng lại Lệnh bài để quái xuất hiện",
+                    valueSec = punishEvilConfig.delayDismountAndSummonSec,
+                    minVal = 1,
+                    maxVal = 10,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayDismountAndSummonSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "9. Thời gian Auto Đánh diệt Boss",
+                    subtitle = "Thời gian bật Auto treo máy & xả combo chiêu cho Boss chết",
+                    valueSec = punishEvilConfig.delayCombatDurationSec,
+                    minVal = 5,
+                    maxVal = 60,
+                    step = 2,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayCombatDurationSec = newVal) } }
+                )
+
+                ActionDelayAdjuster(
+                    title = "10. Chờ Phù biến về Tô Châu",
+                    subtitle = "Thời gian sử dụng Bạch Sắc Định Vị Phù & load map về thành",
+                    valueSec = punishEvilConfig.delayTeleportRecallSec,
+                    minVal = 2,
+                    maxVal = 15,
+                    onValueChange = { newVal -> onUpdatePunishEvilConfig { it.copy(delayTeleportRecallSec = newVal) } }
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(20.dp))
+    }
+
+    // Dialog Thêm Bước Hành Động Mới
+    if (showAddDialog) {
+        AddActionStepDialog(
+            nextOrder = customActionSteps.size + 1,
+            onDismiss = { showAddDialog = false },
+            onConfirm = { newStep ->
+                onAddActionStep(newStep)
+                showAddDialog = false
+            }
+        )
+    }
+
+    // Dialog Sửa Bước Hành Động
+    editingStep?.let { stepToEdit ->
+        EditActionStepDialog(
+            step = stepToEdit,
+            onDismiss = { editingStep = null },
+            onConfirm = { updatedStep ->
+                onUpdateActionStep(updatedStep)
+                editingStep = null
+            }
+        )
     }
 }
 
@@ -407,4 +683,496 @@ private fun EvilLevelSelectorCard(
             }
         }
     }
+}
+
+@Composable
+private fun ActionDelayAdjuster(
+    title: String,
+    subtitle: String,
+    valueSec: Int,
+    minVal: Int = 1,
+    maxVal: Int = 30,
+    step: Int = 1,
+    onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xFF140D0D))
+            .border(1.dp, Color(0xFF2E1A1A), RoundedCornerShape(10.dp))
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Text(
+                text = subtitle,
+                fontSize = 11.sp,
+                color = TextMuted,
+                lineHeight = 14.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF0F0808))
+                .border(1.dp, Color(0xFF3D1F1F), RoundedCornerShape(8.dp))
+        ) {
+            IconButton(
+                onClick = {
+                    if (valueSec - step >= minVal) {
+                        onValueChange(valueSec - step)
+                    }
+                },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(Icons.Default.Remove, contentDescription = "Giảm", tint = TextPrimary, modifier = Modifier.size(16.dp))
+            }
+
+            Text(
+                text = "${valueSec}s",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = GoldPrimary,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            IconButton(
+                onClick = {
+                    if (valueSec + step <= maxVal) {
+                        onValueChange(valueSec + step)
+                    }
+                },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Tăng", tint = TextPrimary, modifier = Modifier.size(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionStepItemRow(
+    stepIndex: Int,
+    step: com.example.data.entity.CustomActionStepEntity,
+    onToggleEnabled: (Boolean) -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onQuickDelayChange: (Int) -> Unit
+) {
+    Surface(
+        color = if (step.isEnabled) Color(0xFF141A17) else Color(0xFF101211),
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (step.isEnabled) Color(0xFF284436) else Color(0xFF222825)
+        ),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Surface(
+                        color = if (step.isEnabled) JadePrimary else Color.DarkGray,
+                        shape = RoundedCornerShape(6.dp),
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "$stepIndex",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Column {
+                        Text(
+                            text = step.actionName,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (step.isEnabled) TextPrimary else TextMuted
+                        )
+                        if (step.description.isNotEmpty()) {
+                            Text(
+                                text = step.description,
+                                fontSize = 11.sp,
+                                color = TextSecondary,
+                                maxLines = 1,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Switch Bật/Tắt bước này
+                Switch(
+                    checked = step.isEnabled,
+                    onCheckedChange = onToggleEnabled,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = JadePrimary,
+                        checkedTrackColor = Color(0xFF0F3826),
+                        uncheckedThumbColor = TextMuted,
+                        uncheckedTrackColor = Color(0xFF1F2623)
+                    ),
+                    modifier = Modifier.size(width = 44.dp, height = 28.dp)
+                )
+            }
+
+            // Thanh điều khiển độ trễ & nút Sửa/Xóa
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Tọa độ % màn hình
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.TouchApp,
+                        contentDescription = null,
+                        tint = GoldPrimary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Tọa độ: (${(step.screenXPercent * 100).toInt()}%, ${(step.screenYPercent * 100).toInt()}%)",
+                        fontSize = 11.sp,
+                        color = TextGold
+                    )
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Điều chỉnh nhanh giây chờ
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF0B1410))
+                            .border(1.dp, Color(0xFF1E3328), RoundedCornerShape(6.dp))
+                    ) {
+                        IconButton(
+                            onClick = {
+                                if (step.delaySeconds > 1) {
+                                    onQuickDelayChange(step.delaySeconds - 1)
+                                }
+                            },
+                            modifier = Modifier.size(26.dp)
+                        ) {
+                            Icon(Icons.Default.Remove, contentDescription = "Giảm", tint = TextPrimary, modifier = Modifier.size(12.dp))
+                        }
+
+                        Text(
+                            text = "${step.delaySeconds}s",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = GoldPrimary,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+
+                        IconButton(
+                            onClick = {
+                                if (step.delaySeconds < 60) {
+                                    onQuickDelayChange(step.delaySeconds + 1)
+                                }
+                            },
+                            modifier = Modifier.size(26.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Tăng", tint = TextPrimary, modifier = Modifier.size(12.dp))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    // Nút Sửa
+                    IconButton(
+                        onClick = onEdit,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = "Sửa", tint = Color(0xFF60A5FA), modifier = Modifier.size(16.dp))
+                    }
+
+                    // Nút Xóa
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(Icons.Default.Delete, contentDescription = "Xóa", tint = Color(0xFFEF4444), modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddActionStepDialog(
+    nextOrder: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (com.example.data.entity.CustomActionStepEntity) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var desc by remember { mutableStateOf("") }
+    var delaySec by remember { mutableStateOf("2") }
+    var xPercent by remember { mutableStateOf(50f) }
+    var yPercent by remember { mutableStateOf(50f) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF151D18),
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Add, contentDescription = null, tint = GoldPrimary)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Thêm Bước Hành Động Mới", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Tên hành động (VD: Bấm Nút Túi Đồ)") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GoldPrimary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = desc,
+                    onValueChange = { desc = it },
+                    label = { Text("Mô tả chi tiết (Tùy chọn)") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GoldPrimary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = delaySec,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) delaySec = it },
+                    label = { Text("Thời gian chờ sau khi click (Giây)") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GoldPrimary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text = "Vị trí chạm trên màn hình: X = ${xPercent.toInt()}%, Y = ${yPercent.toInt()}%",
+                    color = TextGold,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Column {
+                    Text("Tọa độ ngang X: ${xPercent.toInt()}%", fontSize = 11.sp, color = TextSecondary)
+                    Slider(
+                        value = xPercent,
+                        onValueChange = { xPercent = it },
+                        valueRange = 0f..100f,
+                        colors = SliderDefaults.colors(thumbColor = GoldPrimary, activeTrackColor = GoldPrimary)
+                    )
+                }
+
+                Column {
+                    Text("Tọa độ dọc Y: ${yPercent.toInt()}%", fontSize = 11.sp, color = TextSecondary)
+                    Slider(
+                        value = yPercent,
+                        onValueChange = { yPercent = it },
+                        valueRange = 0f..100f,
+                        colors = SliderDefaults.colors(thumbColor = JadePrimary, activeTrackColor = JadePrimary)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (name.isNotBlank()) {
+                        val delay = delaySec.toIntOrNull() ?: 2
+                        onConfirm(
+                            com.example.data.entity.CustomActionStepEntity(
+                                stepOrder = nextOrder,
+                                actionName = name.trim(),
+                                description = desc.trim(),
+                                delaySeconds = delay.coerceIn(1, 120),
+                                screenXPercent = xPercent / 100f,
+                                screenYPercent = yPercent / 100f,
+                                isEnabled = true
+                            )
+                        )
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary, contentColor = Color.Black)
+            ) {
+                Text("Lưu Vào Bộ Nhớ", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextMuted)
+            ) {
+                Text("Hủy")
+            }
+        }
+    )
+}
+
+@Composable
+private fun EditActionStepDialog(
+    step: com.example.data.entity.CustomActionStepEntity,
+    onDismiss: () -> Unit,
+    onConfirm: (com.example.data.entity.CustomActionStepEntity) -> Unit
+) {
+    var name by remember { mutableStateOf(step.actionName) }
+    var desc by remember { mutableStateOf(step.description) }
+    var delaySec by remember { mutableStateOf("${step.delaySeconds}") }
+    var xPercent by remember { mutableStateOf(step.screenXPercent * 100f) }
+    var yPercent by remember { mutableStateOf(step.screenYPercent * 100f) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Color(0xFF151D18),
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Edit, contentDescription = null, tint = Color(0xFF60A5FA))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Chỉnh Sửa Bước Hành Động", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Tên hành động") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GoldPrimary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = desc,
+                    onValueChange = { desc = it },
+                    label = { Text("Mô tả chi tiết") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GoldPrimary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = delaySec,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) delaySec = it },
+                    label = { Text("Thời gian chờ sau khi click (Giây)") },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = GoldPrimary,
+                        unfocusedBorderColor = Color.Gray,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text = "Vị trí chạm trên màn hình: X = ${xPercent.toInt()}%, Y = ${yPercent.toInt()}%",
+                    color = TextGold,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Column {
+                    Text("Tọa độ ngang X: ${xPercent.toInt()}%", fontSize = 11.sp, color = TextSecondary)
+                    Slider(
+                        value = xPercent,
+                        onValueChange = { xPercent = it },
+                        valueRange = 0f..100f,
+                        colors = SliderDefaults.colors(thumbColor = GoldPrimary, activeTrackColor = GoldPrimary)
+                    )
+                }
+
+                Column {
+                    Text("Tọa độ dọc Y: ${yPercent.toInt()}%", fontSize = 11.sp, color = TextSecondary)
+                    Slider(
+                        value = yPercent,
+                        onValueChange = { yPercent = it },
+                        valueRange = 0f..100f,
+                        colors = SliderDefaults.colors(thumbColor = JadePrimary, activeTrackColor = JadePrimary)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (name.isNotBlank()) {
+                        val delay = delaySec.toIntOrNull() ?: step.delaySeconds
+                        onConfirm(
+                            step.copy(
+                                actionName = name.trim(),
+                                description = desc.trim(),
+                                delaySeconds = delay.coerceIn(1, 120),
+                                screenXPercent = xPercent / 100f,
+                                screenYPercent = yPercent / 100f
+                            )
+                        )
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6), contentColor = Color.White)
+            ) {
+                Text("Cập Nhật & Lưu", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextMuted)
+            ) {
+                Text("Hủy")
+            }
+        }
+    )
 }

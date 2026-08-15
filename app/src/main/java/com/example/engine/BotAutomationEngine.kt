@@ -62,7 +62,8 @@ object BotAutomationEngine {
     private val _liveState = MutableStateFlow(LiveBotState())
     val liveState: StateFlow<LiveBotState> = _liveState.asStateFlow()
 
-    private var repository: BotRepository? = null
+    var repository: BotRepository? = null
+        private set
 
     fun initialize(repo: BotRepository) {
         repository = repo

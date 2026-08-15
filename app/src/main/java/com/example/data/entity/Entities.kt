@@ -105,7 +105,18 @@ data class PunishEvilConfigEntity(
     val autoBuyTokensFromStore: Boolean = true,
     val autoMatchParty: Boolean = true,
     val autoUseSupremeCombo: Boolean = true,
-    val autoOpenBountyChests: Boolean = true
+    val autoOpenBountyChests: Boolean = true,
+    // Thời gian chờ cho từng hành động trong chuỗi Trừng Ác (giây)
+    val delayOpenNpcDialogSec: Int = 2,      // 1. Chờ mở bảng hội thoại Ngô Giới
+    val delaySelectQuestSec: Int = 1,        // 2. Chờ chọn dòng Trừng Trị Hung Đồ
+    val delayAcceptQuestSec: Int = 2,        // 3. Chờ nhận nhiệm vụ & nhận lệnh bài
+    val delayOpenBagSec: Int = 1,            // 4. Chờ mở bảng Túi Đồ
+    val delaySelectTabSec: Int = 1,          // 5. Chờ chọn Tab Nhiệm Vụ trong túi
+    val delayUseTokenSec: Int = 2,           // 6. Chờ bấm Lệnh Bài & hiện tọa độ
+    val delayTravelToBossSec: Int = 15,      // 7. Chờ phi thân / cưỡi thú chạy tới bãi Boss
+    val delayDismountAndSummonSec: Int = 3,  // 8. Chờ xuống ngựa & dùng lại lệnh bài gọi Boss
+    val delayCombatDurationSec: Int = 18,    // 9. Thời gian bật Auto đánh / xả combo diệt Boss
+    val delayTeleportRecallSec: Int = 4      // 10. Chờ bấm Bạch Sắc Định Vị Phù biến về Tô Châu
 )
 
 @Entity(tableName = "bot_logs")

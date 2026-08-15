@@ -23,6 +23,7 @@ class BotRepository(private val appDao: AppDao) {
     val farmPlots: Flow<List<FarmPlotEntity>> = appDao.getAllFarmPlots()
     val miningConfig: Flow<MiningConfigEntity?> = appDao.getMiningConfig()
     val punishEvilConfig: Flow<PunishEvilConfigEntity?> = appDao.getPunishEvilConfig()
+    val customActionSteps: Flow<List<com.example.data.entity.CustomActionStepEntity>> = appDao.getAllCustomActionSteps()
     val recentLogs: Flow<List<BotLogEntity>> = appDao.getRecentLogs()
 
     private fun getTodayDateString(): String {
@@ -88,6 +89,91 @@ class BotRepository(private val appDao: AppDao) {
                 isHighlight = true
             )
         )
+
+        // Seed 10 Default Punish Evil Steps
+        val defaultSteps = listOf(
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 1,
+                actionName = "1. Chạm NPC Ngô Giới (Tô Châu)",
+                description = "Chạm vào bong bóng icon hội thoại E của NPC Ngô Giới",
+                delaySeconds = 2,
+                screenXPercent = 0.930f,
+                screenYPercent = 0.440f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 2,
+                actionName = "2. Chọn dòng Trừng Trị Hung Đồ",
+                description = "Chạm vào mục nhiệm vụ Trừng Ác trên bảng hội thoại",
+                delaySeconds = 1,
+                screenXPercent = 0.620f,
+                screenYPercent = 0.380f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 3,
+                actionName = "3. Bấm Nhận Nhiệm Vụ",
+                description = "Nhận nhiệm vụ và nhận Trừng Ác Lệnh vào túi đồ",
+                delaySeconds = 2,
+                screenXPercent = 0.120f,
+                screenYPercent = 0.880f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 4,
+                actionName = "4. Mở Túi Đồ (Phím B)",
+                description = "Mở giao diện Túi Đồ góc trên bên phải màn hình",
+                delaySeconds = 1,
+                screenXPercent = 0.770f,
+                screenYPercent = 0.055f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 5,
+                actionName = "5. Chọn Tab Nhiệm Vụ",
+                description = "Chuyển sang ngăn đựng vật phẩm nhiệm vụ",
+                delaySeconds = 1,
+                screenXPercent = 0.540f,
+                screenYPercent = 0.135f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 6,
+                actionName = "6. Bấm Trừng Ác Lệnh",
+                description = "Chạm vào ô chứa Trừng Ác Lệnh",
+                delaySeconds = 2,
+                screenXPercent = 0.235f,
+                screenYPercent = 0.220f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 7,
+                actionName = "7. Bấm Tọa Độ Boss (Chạy đường)",
+                description = "Bấm link tọa độ để nhân vật tự phi thân chạy tới bãi Boss",
+                delaySeconds = 15,
+                screenXPercent = 0.350f,
+                screenYPercent = 0.550f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 8,
+                actionName = "8. Xuống Ngựa & Gọi Boss",
+                description = "Tắt thú cưỡi và dùng lại Lệnh Bài để gọi Boss xuất hiện",
+                delaySeconds = 3,
+                screenXPercent = 0.445f,
+                screenYPercent = 0.825f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 9,
+                actionName = "9. Bật Auto Đánh diệt Boss",
+                description = "Bật Auto & xả combo chiêu thức tiêu diệt Boss nhặt Bảo Tàng Đồ",
+                delaySeconds = 18,
+                screenXPercent = 0.305f,
+                screenYPercent = 0.905f
+            ),
+            com.example.data.entity.CustomActionStepEntity(
+                stepOrder = 10,
+                actionName = "10. Bạch Sắc Định Vị Phù (Về Tô Châu)",
+                description = "Bấm dùng phù F2/F3 biến về Tô Châu trả nhiệm vụ & lặp lại",
+                delaySeconds = 4,
+                screenXPercent = 0.770f,
+                screenYPercent = 0.285f
+            )
+        )
+        appDao.insertCustomActionSteps(defaultSteps)
     }
 
     suspend fun updateBotConfig(config: BotConfigEntity) = appDao.saveBotConfig(config)
@@ -97,6 +183,11 @@ class BotRepository(private val appDao: AppDao) {
     suspend fun insertFarmPlots(plots: List<FarmPlotEntity>) = appDao.insertFarmPlots(plots)
     suspend fun updateMiningConfig(config: MiningConfigEntity) = appDao.saveMiningConfig(config)
     suspend fun updatePunishEvilConfig(config: PunishEvilConfigEntity) = appDao.savePunishEvilConfig(config)
+    suspend fun addCustomActionStep(step: com.example.data.entity.CustomActionStepEntity) = appDao.insertCustomActionStep(step)
+    suspend fun insertCustomActionSteps(steps: List<com.example.data.entity.CustomActionStepEntity>) = appDao.insertCustomActionSteps(steps)
+    suspend fun updateCustomActionStep(step: com.example.data.entity.CustomActionStepEntity) = appDao.updateCustomActionStep(step)
+    suspend fun deleteCustomActionStep(id: Long) = appDao.deleteCustomActionStep(id)
+    suspend fun clearAllCustomActionSteps() = appDao.clearAllCustomActionSteps()
     suspend fun addLog(log: BotLogEntity) = appDao.insertLog(log)
     suspend fun clearLogs() = appDao.clearAllLogs()
     suspend fun updateDailyStats(stats: DailyStatsEntity) = appDao.saveDailyStats(stats)

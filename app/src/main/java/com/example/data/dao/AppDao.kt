@@ -62,6 +62,25 @@ interface AppDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun savePunishEvilConfig(config: PunishEvilConfigEntity)
 
+    // Custom Action Steps
+    @Query("SELECT * FROM custom_action_steps ORDER BY stepOrder ASC")
+    fun getAllCustomActionSteps(): Flow<List<com.example.data.entity.CustomActionStepEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomActionStep(step: com.example.data.entity.CustomActionStepEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomActionSteps(steps: List<com.example.data.entity.CustomActionStepEntity>)
+
+    @Update
+    suspend fun updateCustomActionStep(step: com.example.data.entity.CustomActionStepEntity)
+
+    @Query("DELETE FROM custom_action_steps WHERE id = :id")
+    suspend fun deleteCustomActionStep(id: Long)
+
+    @Query("DELETE FROM custom_action_steps")
+    suspend fun clearAllCustomActionSteps()
+
     // Logs
     @Query("SELECT * FROM bot_logs ORDER BY timestamp DESC LIMIT 100")
     fun getRecentLogs(): Flow<List<BotLogEntity>>

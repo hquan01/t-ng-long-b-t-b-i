@@ -30,6 +30,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -371,32 +372,47 @@ class FloatingOverlayService : Service() {
         val w = metrics.widthPixels.toFloat()
         val h = metrics.heightPixels.toFloat()
 
-        // 1. Icon Hội thoại Ngô Giới (chữ E)
-        addTargetPoint((w * 0.692f).toInt(), (h * 0.460f).toInt(), "1.NgôGiới")
-        // 2. Dòng Trừng Trị Hung Đồ trong bảng hội thoại
-        addTargetPoint((w * 0.320f).toInt(), (h * 0.325f).toInt(), "2.DòngTrừngÁc")
-        // 3. Nút Nhận nhiệm vụ ở góc dưới bảng
-        addTargetPoint((w * 0.175f).toInt(), (h * 0.935f).toInt(), "3.NhậnNV")
-        // 4. Icon Túi Đồ (Phím B trên góc phải)
-        addTargetPoint((w * 0.838f).toInt(), (h * 0.125f).toInt(), "4.TúiĐồ")
-        // 5. Tab Nhiệm Vụ trong Túi Đồ
-        addTargetPoint((w * 0.540f).toInt(), (h * 0.135f).toInt(), "5.TabNV")
-        // 6. Ô Lệnh Bài Trừng Ác (Ô 1 hàng 1)
-        addTargetPoint((w * 0.235f).toInt(), (h * 0.220f).toInt(), "6.LệnhBài")
-        // 7. Nút Sử Dụng / Bấm Tọa Độ Boss để chạy tới nơi
-        addTargetPoint((w * 0.350f).toInt(), (h * 0.550f).toInt(), "7.ChạyBoss")
-        // 8. Nút Xuống Ngựa (Icon đầu ngựa - Phím C)
-        addTargetPoint((w * 0.445f).toInt(), (h * 0.825f).toInt(), "8.XuốngNgựa")
-        // 9. Nút Auto Đánh / Kỹ năng diệt Boss
-        addTargetPoint((w * 0.305f).toInt(), (h * 0.905f).toInt(), "9.AutoĐánh")
-        // 10. Bạch Sắc Định Vị Phù (Phím F2/F3 trên thanh phím tắt) để về Tô Châu
-        addTargetPoint((w * 0.770f).toInt(), (h * 0.285f).toInt(), "10.PhùTôChâu")
+        serviceScope.launch {
+            val dbSteps = BotAutomationEngine.repository?.customActionSteps?.firstOrNull()
+            if (!dbSteps.isNullOrEmpty()) {
+                val enabledSteps = dbSteps.filter { it.isEnabled }
+                for (step in enabledSteps) {
+                    addTargetPoint((w * step.screenXPercent).toInt(), (h * step.screenYPercent).toInt(), step.actionName)
+                }
+                Toast.makeText(
+                    this@FloatingOverlayService,
+                    "Đã nạp ${enabledSteps.size} bước hành động từ cấu hình đã lưu!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                // 1. Icon Hội thoại Ngô Giới (chữ E)
+                addTargetPoint((w * 0.692f).toInt(), (h * 0.460f).toInt(), "1.NgôGiới")
+                // 2. Dòng Trừng Trị Hung Đồ trong bảng hội thoại
+                addTargetPoint((w * 0.320f).toInt(), (h * 0.325f).toInt(), "2.DòngTrừngÁc")
+                // 3. Nút Nhận nhiệm vụ ở góc dưới bảng
+                addTargetPoint((w * 0.175f).toInt(), (h * 0.935f).toInt(), "3.NhậnNV")
+                // 4. Icon Túi Đồ (Phím B trên góc phải)
+                addTargetPoint((w * 0.838f).toInt(), (h * 0.125f).toInt(), "4.TúiĐồ")
+                // 5. Tab Nhiệm Vụ trong Túi Đồ
+                addTargetPoint((w * 0.540f).toInt(), (h * 0.135f).toInt(), "5.TabNV")
+                // 6. Ô Lệnh Bài Trừng Ác (Ô 1 hàng 1)
+                addTargetPoint((w * 0.235f).toInt(), (h * 0.220f).toInt(), "6.LệnhBài")
+                // 7. Nút Sử Dụng / Bấm Tọa Độ Boss để chạy tới nơi
+                addTargetPoint((w * 0.350f).toInt(), (h * 0.550f).toInt(), "7.ChạyBoss")
+                // 8. Nút Xuống Ngựa (Icon đầu ngựa - Phím C)
+                addTargetPoint((w * 0.445f).toInt(), (h * 0.825f).toInt(), "8.XuốngNgựa")
+                // 9. Nút Auto Đánh / Kỹ năng diệt Boss
+                addTargetPoint((w * 0.305f).toInt(), (h * 0.905f).toInt(), "9.AutoĐánh")
+                // 10. Bạch Sắc Định Vị Phù (Phím F2/F3 trên thanh phím tắt) để về Tô Châu
+                addTargetPoint((w * 0.770f).toInt(), (h * 0.285f).toInt(), "10.PhùTôChâu")
 
-        Toast.makeText(
-            this,
-            "Đã ghim trọn gói 10 bước Trừng Ác (Nhận NV -> Chạy Boss -> Xuống Ngựa -> Triệu Hồi & Đánh -> Phù về Tô Châu)!",
-            Toast.LENGTH_LONG
-        ).show()
+                Toast.makeText(
+                    this@FloatingOverlayService,
+                    "Đã ghim trọn gói 10 bước Trừng Ác mặc định!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun clearAllTargetPoints() {
@@ -429,8 +445,23 @@ class FloatingOverlayService : Service() {
                 val w = metrics.widthPixels.toFloat()
                 val h = metrics.heightPixels.toFloat()
 
+                // Đọc cài đặt thời gian chờ từ cơ sở dữ liệu (Database)
+                val punishEvilConfig = BotAutomationEngine.repository?.punishEvilConfig?.firstOrNull()
+                val dOpenNpc = (punishEvilConfig?.delayOpenNpcDialogSec ?: 2) * 1000L
+                val dSelectQuest = (punishEvilConfig?.delaySelectQuestSec ?: 1) * 1000L
+                val dAcceptQuest = (punishEvilConfig?.delayAcceptQuestSec ?: 2) * 1000L
+                val dOpenBag = (punishEvilConfig?.delayOpenBagSec ?: 1) * 1000L
+                val dSelectTab = (punishEvilConfig?.delaySelectTabSec ?: 1) * 1000L
+                val dUseToken = (punishEvilConfig?.delayUseTokenSec ?: 2) * 1000L
+                val dTravel = (punishEvilConfig?.delayTravelToBossSec ?: 15) * 1000L
+                val dDismountSummon = (punishEvilConfig?.delayDismountAndSummonSec ?: 3) * 1000L
+                val dCombatDuration = (punishEvilConfig?.delayCombatDurationSec ?: 18) * 1000L
+                val dTeleportRecall = (punishEvilConfig?.delayTeleportRecallSec ?: 4) * 1000L
+
+                val customSteps = BotAutomationEngine.repository?.customActionSteps?.firstOrNull()?.filter { it.isEnabled }
+
                 if (targetPoints.isNotEmpty()) {
-                    // CHẾ ĐỘ 1: Click tuần tự theo chu trình chuẩn xác làm Nhiệm Vụ Trừng Ác
+                    // CHẾ ĐỘ 1: Click tuần tự theo chu trình ghim mục tiêu hoặc danh sách tùy chỉnh
                     for ((index, target) in targetPoints.toList().withIndex()) {
                         if (!isActive || BotAutomationEngine.liveState.value.status != BotStatus.RUNNING) break
                         val jitterX = target.coordinate.x + Random.nextInt(-3, 4)
@@ -439,85 +470,127 @@ class FloatingOverlayService : Service() {
                         showClickFeedback(jitterX, jitterY)
                         service.clickAt(jitterX, jitterY)
 
-                        when (index) {
-                            0 -> delay(1200L + Random.nextLong(100, 300)) // Bước 1: Mở bảng Ngô Giới
-                            1 -> delay(800L + Random.nextLong(100, 200))  // Bước 2: Chọn Trừng Trị Hung Đồ
-                            2 -> delay(1500L + Random.nextLong(100, 300)) // Bước 3: Bấm Nhận nhiệm vụ
-                            3 -> delay(1000L + Random.nextLong(100, 200)) // Bước 4: Mở Túi Đồ
-                            4 -> delay(800L + Random.nextLong(100, 200))  // Bước 5: Chọn Tab Nhiệm Vụ
-                            5 -> delay(1000L + Random.nextLong(100, 200)) // Bước 6: Bấm Lệnh Bài
-                            6 -> {
-                                // Bước 7: Bấm Tọa Độ để chạy tới bãi Boss
-                                delay(12000L) // Chờ 12 giây cho nhân vật phi thân/cưỡi thú chạy tới map Boss
-                            }
-                            7 -> {
-                                // Bước 8: Tắt Cưỡi Thú (Xuống ngựa) & Dùng lại Lệnh bài để triệu hồi Boss
-                                delay(1200L)
-                                // Tự động mở lại Túi đồ và dùng Lệnh Bài để gọi Boss
-                                val bagPoint = targetPoints.getOrNull(3)
-                                val questTabPoint = targetPoints.getOrNull(4)
-                                val itemPoint = targetPoints.getOrNull(5)
-                                val usePoint = targetPoints.getOrNull(6)
+                        val customStep = customSteps?.getOrNull(index)
+                        if (customStep != null) {
+                            // Sử dụng thời gian chờ được lưu cho chính bước này
+                            val customDelay = customStep.delaySeconds * 1000L
+                            when {
+                                customStep.actionName.contains("Đánh", ignoreCase = true) || 
+                                customStep.actionName.contains("Boss", ignoreCase = true) && customStep.actionName.contains("Diệt", ignoreCase = true) -> {
+                                    // Thực hiện liên hoàn combo kỹ năng trong suốt thời gian đánh boss
+                                    val combatStartTime = System.currentTimeMillis()
+                                    val attackPoint = PointF(w * 0.915f, h * 0.835f)
+                                    val skill1 = PointF(w * 0.885f, h * 0.575f)
+                                    val skill2 = PointF(w * 0.965f, h * 0.575f)
+                                    val skill3 = PointF(w * 0.805f, h * 0.690f)
+                                    val skill4 = PointF(w * 0.875f, h * 0.690f)
+                                    val hpPotion = PointF(w * 0.825f, h * 0.465f)
 
-                                if (bagPoint != null && itemPoint != null) {
-                                    showClickFeedback(bagPoint.coordinate.x, bagPoint.coordinate.y)
-                                    service.clickAt(bagPoint.coordinate.x, bagPoint.coordinate.y)
-                                    delay(900L)
+                                    val skillList = listOf(attackPoint, skill1, skill2, attackPoint, skill3, skill4, hpPotion)
+                                    var skillIdx = 0
 
-                                    if (questTabPoint != null) {
-                                        showClickFeedback(questTabPoint.coordinate.x, questTabPoint.coordinate.y)
-                                        service.clickAt(questTabPoint.coordinate.x, questTabPoint.coordinate.y)
-                                        delay(700L)
+                                    while (isActive &&
+                                        BotAutomationEngine.liveState.value.status == BotStatus.RUNNING &&
+                                        (System.currentTimeMillis() - combatStartTime) < customDelay
+                                    ) {
+                                        val sp = skillList[skillIdx % skillList.size]
+                                        val sx = sp.x + Random.nextInt(-4, 5)
+                                        val sy = sp.y + Random.nextInt(-4, 5)
+                                        showClickFeedback(sx, sy)
+                                        service.clickAt(sx, sy)
+                                        skillIdx++
+                                        delay(750L + Random.nextLong(100, 250))
                                     }
 
-                                    showClickFeedback(itemPoint.coordinate.x, itemPoint.coordinate.y)
-                                    service.clickAt(itemPoint.coordinate.x, itemPoint.coordinate.y)
-                                    delay(800L)
+                                    // Tắt Auto sau khi xong
+                                    showClickFeedback(target.coordinate.x, target.coordinate.y)
+                                    service.clickAt(target.coordinate.x, target.coordinate.y)
+                                    delay(600L)
+                                }
+                                else -> {
+                                    delay(customDelay + Random.nextLong(100, 250))
+                                }
+                            }
+                        } else {
+                            // Fallback theo index mặc định
+                            when (index) {
+                                0 -> delay(dOpenNpc + Random.nextLong(100, 300)) // Bước 1: Mở bảng Ngô Giới
+                                1 -> delay(dSelectQuest + Random.nextLong(100, 200))  // Bước 2: Chọn Trừng Trị Hung Đồ
+                                2 -> delay(dAcceptQuest + Random.nextLong(100, 300)) // Bước 3: Bấm Nhận nhiệm vụ
+                                3 -> delay(dOpenBag + Random.nextLong(100, 200)) // Bước 4: Mở Túi Đồ
+                                4 -> delay(dSelectTab + Random.nextLong(100, 200))  // Bước 5: Chọn Tab Nhiệm Vụ
+                                5 -> delay(dUseToken + Random.nextLong(100, 200)) // Bước 6: Bấm Lệnh Bài
+                                6 -> {
+                                    // Bước 7: Bấm Tọa Độ để chạy tới bãi Boss
+                                    delay(dTravel)
+                                }
+                                7 -> {
+                                    // Bước 8: Tắt Cưỡi Thú (Xuống ngựa) & Dùng lại Lệnh bài để triệu hồi Boss
+                                    delay(dDismountSummon)
+                                    val bagPoint = targetPoints.getOrNull(3)
+                                    val questTabPoint = targetPoints.getOrNull(4)
+                                    val itemPoint = targetPoints.getOrNull(5)
+                                    val usePoint = targetPoints.getOrNull(6)
 
-                                    if (usePoint != null) {
-                                        showClickFeedback(usePoint.coordinate.x, usePoint.coordinate.y)
-                                        service.clickAt(usePoint.coordinate.x, usePoint.coordinate.y)
-                                        delay(1200L)
+                                    if (bagPoint != null && itemPoint != null) {
+                                        showClickFeedback(bagPoint.coordinate.x, bagPoint.coordinate.y)
+                                        service.clickAt(bagPoint.coordinate.x, bagPoint.coordinate.y)
+                                        delay(900L)
+
+                                        if (questTabPoint != null) {
+                                            showClickFeedback(questTabPoint.coordinate.x, questTabPoint.coordinate.y)
+                                            service.clickAt(questTabPoint.coordinate.x, questTabPoint.coordinate.y)
+                                            delay(700L)
+                                        }
+
+                                        showClickFeedback(itemPoint.coordinate.x, itemPoint.coordinate.y)
+                                        service.clickAt(itemPoint.coordinate.x, itemPoint.coordinate.y)
+                                        delay(800L)
+
+                                        if (usePoint != null) {
+                                            showClickFeedback(usePoint.coordinate.x, usePoint.coordinate.y)
+                                            service.clickAt(usePoint.coordinate.x, usePoint.coordinate.y)
+                                            delay(1200L)
+                                        }
                                     }
                                 }
-                            }
-                            8 -> {
-                                // Bước 9: Bật Auto Đánh & Xả liên hoàn kỹ năng để diệt Boss
-                                val combatStartTime = System.currentTimeMillis()
-                                val attackPoint = PointF(w * 0.915f, h * 0.835f)
-                                val skill1 = PointF(w * 0.885f, h * 0.575f)
-                                val skill2 = PointF(w * 0.965f, h * 0.575f)
-                                val skill3 = PointF(w * 0.805f, h * 0.690f)
-                                val skill4 = PointF(w * 0.875f, h * 0.690f)
-                                val hpPotion = PointF(w * 0.825f, h * 0.465f)
+                                8 -> {
+                                    // Bước 9: Bật Auto Đánh & Xả liên hoàn kỹ năng để diệt Boss
+                                    val combatStartTime = System.currentTimeMillis()
+                                    val attackPoint = PointF(w * 0.915f, h * 0.835f)
+                                    val skill1 = PointF(w * 0.885f, h * 0.575f)
+                                    val skill2 = PointF(w * 0.965f, h * 0.575f)
+                                    val skill3 = PointF(w * 0.805f, h * 0.690f)
+                                    val skill4 = PointF(w * 0.875f, h * 0.690f)
+                                    val hpPotion = PointF(w * 0.825f, h * 0.465f)
 
-                                val skillList = listOf(attackPoint, skill1, skill2, attackPoint, skill3, skill4, hpPotion)
-                                var skillIdx = 0
+                                    val skillList = listOf(attackPoint, skill1, skill2, attackPoint, skill3, skill4, hpPotion)
+                                    var skillIdx = 0
 
-                                // Treo đánh Boss trong 15 giây cho Boss chết
-                                while (isActive &&
-                                    BotAutomationEngine.liveState.value.status == BotStatus.RUNNING &&
-                                    (System.currentTimeMillis() - combatStartTime) < 15000L
-                                ) {
-                                    val sp = skillList[skillIdx % skillList.size]
-                                    val sx = sp.x + Random.nextInt(-4, 5)
-                                    val sy = sp.y + Random.nextInt(-4, 5)
-                                    showClickFeedback(sx, sy)
-                                    service.clickAt(sx, sy)
-                                    skillIdx++
-                                    delay(750L + Random.nextLong(100, 250))
+                                    while (isActive &&
+                                        BotAutomationEngine.liveState.value.status == BotStatus.RUNNING &&
+                                        (System.currentTimeMillis() - combatStartTime) < dCombatDuration
+                                    ) {
+                                        val sp = skillList[skillIdx % skillList.size]
+                                        val sx = sp.x + Random.nextInt(-4, 5)
+                                        val sy = sp.y + Random.nextInt(-4, 5)
+                                        showClickFeedback(sx, sy)
+                                        service.clickAt(sx, sy)
+                                        skillIdx++
+                                        delay(750L + Random.nextLong(100, 250))
+                                    }
+
+                                    // Tắt Auto Đánh sau khi Boss chết
+                                    showClickFeedback(target.coordinate.x, target.coordinate.y)
+                                    service.clickAt(target.coordinate.x, target.coordinate.y)
+                                    delay(1000L)
                                 }
-
-                                // Tắt Auto Đánh sau khi Boss chết
-                                showClickFeedback(target.coordinate.x, target.coordinate.y)
-                                service.clickAt(target.coordinate.x, target.coordinate.y)
-                                delay(1000L)
+                                9 -> {
+                                    // Bước 10: Dùng Bạch Sắc Định Vị Phù (F2/F3) để biến phù về Tô Châu
+                                    delay(dTeleportRecall)
+                                }
+                                else -> delay(1200L)
                             }
-                            9 -> {
-                                // Bước 10: Dùng Bạch Sắc Định Vị Phù (F2/F3) để biến phù về Tô Châu
-                                delay(3000L) // Chờ load về thành Tô Châu cạnh Ngô Giới
-                            }
-                            else -> delay(1200L)
                         }
                     }
                     delay(2000L)
