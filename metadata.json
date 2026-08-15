@@ -1,0 +1,6 @@
+{
+  "name": "Tàng Long Auto",
+  "description": "Trợ lý rảnh tay tự động làm nhiệm vụ bang, trồng trọt, đào khoáng và trừng ác chạy nền cho Tàng Long Bất Bại Mobile",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

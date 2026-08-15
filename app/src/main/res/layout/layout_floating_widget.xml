@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/floating_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@android:color/transparent">
+
+    <!-- Bong bóng biểu tượng chính -->
+    <ImageView
+        android:id="@+id/btn_floating_toggle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_app_logo"
+        android:background="@drawable/bg_floating_circle"
+        android:padding="6dp"
+        android:contentDescription="Tàng Long Auto Bubble" />
+
+    <!-- Bảng điều khiển mở rộng khi chạm vào bong bóng -->
+    <LinearLayout
+        android:id="@+id/floating_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_floating_panel"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:id="@+id/tv_floating_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tàng Long Auto"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp" />
+
+        <ImageView
+            android:id="@+id/btn_floating_pause_resume"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_media_play"
+            android:background="@drawable/bg_floating_btn"
+            android:padding="4dp"
+            android:contentDescription="Pause/Resume"
+            android:layout_marginEnd="6dp" />
+
+        <ImageView
+            android:id="@+id/btn_floating_open_app"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@android:drawable/ic_menu_preferences"
+            android:background="@drawable/bg_floating_btn"
+            android:padding="4dp"
+            android:contentDescription="Mở ứng dụng" />
+    </LinearLayout>
+
+</LinearLayout>
