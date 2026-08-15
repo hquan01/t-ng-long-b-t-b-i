@@ -84,6 +84,17 @@
             android:contentDescription="Thêm điểm chạm mục tiêu"
             android:layout_marginEnd="6dp" />
 
+        <!-- Nút Thêm Preset Tọa Độ Chuẩn Game -->
+        <ImageView
+            android:id="@+id/btn_floating_preset"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:background="@drawable/bg_floating_btn"
+            android:padding="5dp"
+            android:contentDescription="Ghim Tọa Độ Chuẩn Game"
+            android:layout_marginEnd="6dp" />
+
         <!-- Nút xóa tất cả điểm chạm -->
         <ImageView
             android:id="@+id/btn_floating_clear_targets"
