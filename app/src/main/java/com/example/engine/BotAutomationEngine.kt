@@ -300,48 +300,72 @@ object BotAutomationEngine {
         val targetLoops = guildConfig?.targetLoops ?: 50
         val currentLoopNum = (_liveState.value.sessionGuildQuests % targetLoops) + 1
 
-        val questTypes = listOf(
-            GuildQuestType.HOI_VU,
-            GuildQuestType.VAN_TIEU,
-            GuildQuestType.TUAN_TRA,
-            GuildQuestType.LUYEN_CONG
+        val npcQuestTypes = listOf(
+            GuildQuestType.DOI_THOAI_NPC,
+            GuildQuestType.GIAO_NOP_QUAN_NHU,
+            GuildQuestType.TRUNG_TRI_QUAI,
+            GuildQuestType.THAM_HOI_CAO_NHAN
         )
-        val selectedQuest = questTypes.random()
+        val selectedQuest = npcQuestTypes.random()
 
+        // BƯỚC 1: Tìm đường đến NPC Bang chỉ định & đối thoại
         _liveState.value = _liveState.value.copy(
             currentCategory = TaskCategory.GUILD_QUEST,
-            currentMapName = "Tổng Đà Bang Hội - Lãnh Địa",
-            actionText = "Bang Hội (Vòng #$currentLoopNum/$targetLoops): ${selectedQuest.title}...",
-            subActionDetail = "Tự động di chuyển đến NPC Chưởng Quản Bang để nhận chuỗi 50 việc bang"
+            currentMapName = "Cứ Địa Bang Hội - NPC Chỉ Định",
+            actionText = "Nhiệm Vụ Bang (Vòng #$currentLoopNum/$targetLoops): Tìm NPC đối thoại...",
+            subActionDetail = "Tự động tìm đường đến gặp NPC Bang, đối thoại và nhận chỉ thị yêu cầu"
         )
         delay(randomJitter(minDelay, maxDelay))
 
+        // BƯỚC 2: Thực hiện yêu cầu của NPC (Giao nộp đồ / Diệt quái / Truyền tin)
         _liveState.value = _liveState.value.copy(
-            actionText = "Đang thực hiện ${selectedQuest.title} (Vòng #$currentLoopNum/$targetLoops)...",
-            subActionDetail = "Tự động đánh quái vật bảo tiêu & nộp quân lương bang hội"
+            actionText = "Đang làm theo yêu cầu NPC: ${selectedQuest.title}...",
+            subActionDetail = selectedQuest.description
         )
         delay(randomJitter(minDelay + 400, maxDelay + 800))
 
+        // BƯỚC 3: Hoàn tất, đối thoại trả nhiệm vụ cho NPC và nhận thưởng cống hiến
         val exp = selectedQuest.expGain
-        val gold = 2800
+        val gold = 3200
         _liveState.value = _liveState.value.copy(
             sessionExp = _liveState.value.sessionExp + exp,
             sessionGold = _liveState.value.sessionGold + gold,
             sessionGuildQuests = _liveState.value.sessionGuildQuests + 1,
-            actionText = "Hoàn tất vòng #$currentLoopNum/$targetLoops: ${selectedQuest.title} (+${selectedQuest.devGain} Cống Hiến)",
-            subActionDetail = "Tự động nhận thưởng Exp Bang và tiếp tục vòng tiếp theo trong chuỗi 50"
+            actionText = "Hoàn tất vòng #$currentLoopNum/$targetLoops: Trả NPC (+${selectedQuest.devGain} Cống Hiến)",
+            subActionDetail = "Đã đối thoại nộp nhiệm vụ cho NPC. Tự động nhận lượt tiếp theo trong chuỗi $targetLoops việc bang"
         )
         repo.addLog(
             BotLogEntity(
                 category = "BANG HỘI",
-                actionText = "Hoàn tất vòng #$currentLoopNum/$targetLoops (${selectedQuest.title})",
-                detail = "Nhận +$exp Exp, +$gold Vàng, +${selectedQuest.devGain} Điểm Cống Hiến Bang.",
+                actionText = "Hoàn tất nhiệm vụ Bang vòng #$currentLoopNum/$targetLoops (NPC Chỉ Định)",
+                detail = "Đã đối thoại và hoàn thành: ${selectedQuest.title}. Nhận +$exp Exp, +$gold Vàng, +${selectedQuest.devGain} Cống Hiến Bang.",
                 expEarned = exp,
                 goldEarned = gold,
-                itemDrop = "${selectedQuest.devGain} Cống Hiến Bang"
+                itemDrop = "${selectedQuest.devGain} Cống Hiến Bang",
+                isHighlight = false
             )
         )
         delay(randomJitter(minDelay, maxDelay))
+
+        // NẾU BẬT CHẾ ĐỘ VẬN TIÊU BANG RIÊNG
+        if (guildConfig?.enableSeparateEscort == true && currentLoopNum % 10 == 0) {
+            _liveState.value = _liveState.value.copy(
+                actionText = "[Chế Độ Riêng] Đang Vận Tiêu Bang Hội (Bảo Tiêu Xa)...",
+                subActionDetail = "Nhận Tiêu Xa Bang tại NPC Tiêu Đầu, tự động hộ tống đến thành Tô Châu và bảo vệ tiêu xa"
+            )
+            delay(randomJitter(minDelay + 800, maxDelay + 1500))
+            repo.addLog(
+                BotLogEntity(
+                    category = "VẬN TIÊU BANG",
+                    actionText = "Hoàn thành chuyến Vận Tiêu Bang Hội (Chế độ riêng)",
+                    detail = "Hộ tống Tiêu Xa thành công về đích an toàn. Nhận +28.000 Exp, +350 Cống Hiến Bang.",
+                    expEarned = 28000,
+                    goldEarned = 8500,
+                    itemDrop = "Rương Bảo Tiêu Bang",
+                    isHighlight = true
+                )
+            )
+        }
     }
 
     private suspend fun runMiningCycle(repo: BotRepository, minDelay: Long, maxDelay: Long) {

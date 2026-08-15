@@ -198,7 +198,7 @@ fun GuildScreen(
 
         // Sub-quests list
         Text(
-            text = "DANH SÁCH TÁC VỤ BANG TỰ ĐỘNG",
+            text = "CHẾ ĐỘ TÁC VỤ BANG THEO GAME CHUẨN",
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = TextJade,
@@ -206,43 +206,19 @@ fun GuildScreen(
         )
 
         SettingToggleItem(
-            title = "1. Hội Vụ Bang Hội (Nhiệm Vụ Thường)",
-            description = "Tự động chạy tới NPC Bang, nhận thư, đối thoại, trảm yêu quái và nộp nhiệm vụ.",
-            checked = guildConfig.enableHoiVu,
-            onCheckedChange = { checked -> onUpdateGuildConfig { it.copy(enableHoiVu = checked) } },
-            testTag = "switch_enable_hoivu"
+            title = "1. Đối Thoại NPC & Làm Theo Yêu Cầu",
+            description = "Tự động tìm đường đến các NPC Bang chỉ định, đối thoại nhận nhiệm vụ, giao nộp đồ / đánh quái theo yêu cầu và trả nhiệm vụ.",
+            checked = guildConfig.enableNpcDialogQuests,
+            onCheckedChange = { checked -> onUpdateGuildConfig { it.copy(enableNpcDialogQuests = checked) } },
+            testTag = "switch_enable_npc_dialog_quests"
         )
 
         SettingToggleItem(
-            title = "2. Vận Tiêu Bang Hội (Bảo Tiêu Xa)",
-            description = "Tự động nhận Tiêu Xa Bang, hộ tống an toàn, tự động dùng kỹ năng tăng tốc và đánh cướp tiêu.",
-            checked = guildConfig.enableVanTieu,
-            onCheckedChange = { checked -> onUpdateGuildConfig { it.copy(enableVanTieu = checked) } },
-            testTag = "switch_enable_vantieu"
-        )
-
-        SettingToggleItem(
-            title = "3. Tuần Tra Lãnh Địa",
-            description = "Quét 4 góc cứ địa Bang Hội, phát hiện và tiêu diệt Thám Tử Ngoại Bang thâm nhập.",
-            checked = guildConfig.enableTuanTra,
-            onCheckedChange = { checked -> onUpdateGuildConfig { it.copy(enableTuanTra = checked) } },
-            testTag = "switch_enable_tuantra"
-        )
-
-        SettingToggleItem(
-            title = "4. Cứu Trợ Bang Hội",
-            description = "Tự động gom và nộp Dược Liệu/Khoáng Thạch vào kho quân nhu bang để lấy điểm Cống Hiến.",
-            checked = guildConfig.enableCuuTro,
-            onCheckedChange = { checked -> onUpdateGuildConfig { it.copy(enableCuuTro = checked) } },
-            testTag = "switch_enable_cuutro"
-        )
-
-        SettingToggleItem(
-            title = "5. Luyện Công Bang Hội",
-            description = "Tham gia Luyện Công Động cùng các thành viên, ngồi thiền nhận Exp và Tâm Pháp.",
-            checked = guildConfig.enableLuyenCong,
-            onCheckedChange = { checked -> onUpdateGuildConfig { it.copy(enableLuyenCong = checked) } },
-            testTag = "switch_enable_luyencong"
+            title = "2. Vận Tiêu Bang Hội (Chạy Chế Độ Riêng)",
+            description = "Tách riêng luồng Vận Tiêu Xa Bang: Nhận tiêu xa tại NPC Tiêu Đầu, kích tốc độ di chuyển và phòng thủ cướp tiêu độc lập.",
+            checked = guildConfig.enableSeparateEscort,
+            onCheckedChange = { checked -> onUpdateGuildConfig { it.copy(enableSeparateEscort = checked) } },
+            testTag = "switch_enable_separate_escort"
         )
 
         // Additional Guild Automation features

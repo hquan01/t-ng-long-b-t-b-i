@@ -74,6 +74,50 @@ fun SettingsSecurityScreen(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Game Profile Info (Tàng Long Bất Bại - CMPlay)
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF102018)),
+            shape = RoundedCornerShape(14.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, JadePrimary.copy(alpha = 0.6f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    color = Color(0xFF0F3B29),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.size(38.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = "Game Profile",
+                            tint = GoldPrimary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Game: Tàng Long Bất Bại Mobile",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextGold
+                        )
+                    }
+                    Text(
+                        text = "Trang chủ chính thức: tanglongbatbai.vn | Phiên bản chuẩn 9 đại môn phái",
+                        fontSize = 11.sp,
+                        color = TextJade
+                    )
+                }
+            }
+        }
+
         // Sect & Character Profile
         SectSelectorCard(
             selectedSect = botConfig.sect,

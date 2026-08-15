@@ -38,11 +38,9 @@ data class GuildQuestConfigEntity(
     @PrimaryKey val id: Int = 1,
     val targetLoops: Int = 50,
     val currentLoop: Int = 0,
-    val enableHoiVu: Boolean = true,
-    val enableVanTieu: Boolean = true,
-    val enableTuanTra: Boolean = true,
-    val enableCuuTro: Boolean = true,
-    val enableLuyenCong: Boolean = true,
+    val enableNpcDialogQuests: Boolean = true, // Đối thoại các NPC & làm theo yêu cầu
+    val enableSeparateEscort: Boolean = false, // Vận tiêu bang chạy riêng
+    val escortDailyCount: Int = 3, // Số chuyến vận tiêu mỗi ngày
     val autoContributeItems: Boolean = true,
     val autoClaimDevotionBonus: Boolean = true,
     val escortQualityPriority: String = "Cam / Tím (Cao Cấp)"

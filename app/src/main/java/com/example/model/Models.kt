@@ -15,12 +15,12 @@ enum class BotStatus(val label: String) {
     ERROR("Gặp Sự Cố")
 }
 
-enum class GuildQuestType(val title: String, val expGain: Int, val devGain: Int) {
-    HOI_VU("Hội Vụ Bang Hội", 12000, 150),
-    VAN_TIEU("Vận Tiêu Bang", 25000, 300),
-    TUAN_TRA("Tuần Tra Lãnh Địa", 15000, 180),
-    CUU_TRO("Cứu Trợ Bang", 10000, 120),
-    LUYEN_CONG("Luyện Công Bang", 20000, 250)
+enum class GuildQuestType(val title: String, val expGain: Int, val devGain: Int, val description: String) {
+    DOI_THOAI_NPC("Đối Thoại & Làm Theo NPC Bang Yêu Cầu", 12000, 160, "Tự tìm đường đến các NPC chỉ định, đối thoại, giao nộp đồ / diệt quái theo lệnh NPC"),
+    GIAO_NOP_QUAN_NHU("Giao Nộp Quân Nhu & Vật Phẩm", 14000, 180, "Thu thập hoặc nộp nguyên liệu theo yêu cầu của NPC Bang"),
+    TRUNG_TRI_QUAI("Trừng Trị Yêu Quái / Phản Đồ Bang", 16000, 200, "Đến bản đồ chỉ định đánh bại quái vật theo yêu cầu của NPC Bang"),
+    THAM_HOI_CAO_NHAN("Thăm Hỏi Cao Nhân / Sứ Giả", 11000, 150, "Truyền thư và đối thoại với các NPC cao nhân môn phái"),
+    VAN_TIEU_RIENG("Vận Tiêu Bang (Chế Độ Riêng)", 28000, 350, "Nhận tiêu xa bang, tự động hộ tống đến đích và chống cướp tiêu (Chạy luồng riêng)")
 }
 
 enum class CropType(

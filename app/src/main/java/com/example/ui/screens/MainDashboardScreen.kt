@@ -242,8 +242,8 @@ fun MainDashboardScreen(
 
             // Punish Evil Card (Nhiệm Vụ Trừng Ác)
             FeatureCard(
-                title = "Nhiệm Vụ Trừng Ác",
-                subtitle = "Săn ác nhân cấp 30-100, dùng lệnh bài & mở bảo rương",
+                title = "Trừng Trị Hung Đồ (Trừng Ác)",
+                subtitle = "8 bước: NPC Ngô Giới -> Trừng Ác Lệnh -> Di chuyển -> Trảm Ngô Nhân Hách -> Nhặt Tàng Bảo Đồ -> Về Tô Châu",
                 icon = Icons.Default.MilitaryTech,
                 iconTint = CrimsonPrimary,
                 iconBg = Color(0xFF381212),
