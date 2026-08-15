@@ -218,12 +218,14 @@ object BotAutomationEngine {
     private suspend fun runPunishEvilCycle(repo: BotRepository, minDelay: Long, maxDelay: Long) {
         val evilConfig = repo.punishEvilConfig.firstOrNull()
         val evilLvl = evilConfig?.evilLevel ?: EvilLevel.CAP_70_80
+        val isUntilLimit = evilConfig?.runUntilLimitReached ?: true
+        val targetTokens = if (isUntilLimit) "Tối Đa Giới Hạn Ngày" else "${evilConfig?.dailyTokensToUse ?: 50} lệnh"
 
         _liveState.value = _liveState.value.copy(
             currentCategory = TaskCategory.PUNISH_EVIL,
             currentMapName = "Hắc Hổ Nhai - Sào Huyệt Ác Nhân",
-            actionText = "Dùng Trừng Ác Lệnh truy tìm ${evilLvl.levelName}...",
-            subActionDetail = "Tự động định vị tọa độ ác nhân và tự kích hoạt trạng thái chiến đấu"
+            actionText = "Trừng Ác: Quét ác nhân ${evilLvl.levelName} (Chế độ: $targetTokens)...",
+            subActionDetail = "Tự động nhận lệnh bài từ NPC, kiểm tra giới hạn lượt hôm nay và di chuyển tới mục tiêu"
         )
         delay(randomJitter(minDelay, maxDelay))
 
@@ -238,20 +240,21 @@ object BotAutomationEngine {
 
         val exp = 35000
         val gold = 4500
+        val newEvilCount = _liveState.value.sessionEvils + 1
         _liveState.value = _liveState.value.copy(
             sessionExp = _liveState.value.sessionExp + exp,
             sessionGold = _liveState.value.sessionGold + gold,
-            sessionEvils = _liveState.value.sessionEvils + 1,
+            sessionEvils = newEvilCount,
             playerHpPercent = 95,
             playerMpPercent = 90,
-            actionText = "Đã trảm sát thành công ${evilLvl.levelName}!",
-            subActionDetail = "Mở Rương Trừng Ác nhận được $exp Exp và $gold Ngân Lượng"
+            actionText = "Đã trảm sát thành công ${evilLvl.levelName} (Lượt #$newEvilCount)!",
+            subActionDetail = "Mở Rương Trừng Ác nhận $exp Exp & $gold Vàng. Tự động nhận lượt tiếp theo..."
         )
         repo.addLog(
             BotLogEntity(
                 category = "TRỪNG ÁC",
-                actionText = "Hoàn thành 1 vòng Trừng Ác (${evilLvl.levelName})",
-                detail = "Tiêu diệt Đầu Mục Ác Nhân, mở bảo rương trừng phạt thành công.",
+                actionText = "Hoàn thành vòng Trừng Ác #$newEvilCount (${evilLvl.levelName})",
+                detail = "Tiêu diệt Đầu Mục Ác Nhân. Tiếp tục quét lệnh bài đến khi NPC báo hết lượt.",
                 expEarned = exp,
                 goldEarned = gold,
                 itemDrop = "Rương Hoàng Kim Trừng Ác",
@@ -262,6 +265,10 @@ object BotAutomationEngine {
     }
 
     private suspend fun runGuildQuestCycle(repo: BotRepository, minDelay: Long, maxDelay: Long) {
+        val guildConfig = repo.guildConfig.firstOrNull()
+        val targetLoops = guildConfig?.targetLoops ?: 50
+        val currentLoopNum = (_liveState.value.sessionGuildQuests % targetLoops) + 1
+
         val questTypes = listOf(
             GuildQuestType.HOI_VU,
             GuildQuestType.VAN_TIEU,
@@ -273,13 +280,13 @@ object BotAutomationEngine {
         _liveState.value = _liveState.value.copy(
             currentCategory = TaskCategory.GUILD_QUEST,
             currentMapName = "Tổng Đà Bang Hội - Lãnh Địa",
-            actionText = "Nhận nhiệm vụ Bang Hội: ${selectedQuest.title}...",
-            subActionDetail = "Tự động di chuyển đến NPC Chưởng Quản Bang để đối thoại"
+            actionText = "Bang Hội (Vòng #$currentLoopNum/$targetLoops): ${selectedQuest.title}...",
+            subActionDetail = "Tự động di chuyển đến NPC Chưởng Quản Bang để nhận chuỗi 50 việc bang"
         )
         delay(randomJitter(minDelay, maxDelay))
 
         _liveState.value = _liveState.value.copy(
-            actionText = "Đang thực hiện ${selectedQuest.title}...",
+            actionText = "Đang thực hiện ${selectedQuest.title} (Vòng #$currentLoopNum/$targetLoops)...",
             subActionDetail = "Tự động đánh quái vật bảo tiêu & nộp quân lương bang hội"
         )
         delay(randomJitter(minDelay + 400, maxDelay + 800))
@@ -290,13 +297,13 @@ object BotAutomationEngine {
             sessionExp = _liveState.value.sessionExp + exp,
             sessionGold = _liveState.value.sessionGold + gold,
             sessionGuildQuests = _liveState.value.sessionGuildQuests + 1,
-            actionText = "Hoàn thành ${selectedQuest.title} (+${selectedQuest.devGain} Cống Hiến)",
-            subActionDetail = "Tự động nhận thưởng Exp Bang và tích lũy điểm xây dựng bang"
+            actionText = "Hoàn tất vòng #$currentLoopNum/$targetLoops: ${selectedQuest.title} (+${selectedQuest.devGain} Cống Hiến)",
+            subActionDetail = "Tự động nhận thưởng Exp Bang và tiếp tục vòng tiếp theo trong chuỗi 50"
         )
         repo.addLog(
             BotLogEntity(
                 category = "BANG HỘI",
-                actionText = "Hoàn tất nhiệm vụ ${selectedQuest.title}",
+                actionText = "Hoàn tất vòng #$currentLoopNum/$targetLoops (${selectedQuest.title})",
                 detail = "Nhận +$exp Exp, +$gold Vàng, +${selectedQuest.devGain} Điểm Cống Hiến Bang.",
                 expEarned = exp,
                 goldEarned = gold,

@@ -36,7 +36,7 @@ data class BotConfigEntity(
 @Entity(tableName = "guild_quest_config")
 data class GuildQuestConfigEntity(
     @PrimaryKey val id: Int = 1,
-    val targetLoops: Int = 10,
+    val targetLoops: Int = 50,
     val currentLoop: Int = 0,
     val enableHoiVu: Boolean = true,
     val enableVanTieu: Boolean = true,
@@ -88,7 +88,8 @@ data class MiningConfigEntity(
 data class PunishEvilConfigEntity(
     @PrimaryKey val id: Int = 1,
     val evilLevel: EvilLevel = EvilLevel.CAP_70_80,
-    val dailyTokensToUse: Int = 20,
+    val runUntilLimitReached: Boolean = true,
+    val dailyTokensToUse: Int = 50,
     val tokensUsedToday: Int = 0,
     val autoBuyTokensFromStore: Boolean = true,
     val autoMatchParty: Boolean = true,

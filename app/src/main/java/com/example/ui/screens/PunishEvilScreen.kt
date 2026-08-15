@@ -145,69 +145,80 @@ fun PunishEvilScreen(
             }
         )
 
-        // Daily Tokens Selector
-        Card(
-            colors = CardDefaults.cardColors(containerColor = InkCard),
-            shape = RoundedCornerShape(14.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, InkCardBorder),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "Số Trừng Ác Lệnh Mỗi Ngày",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    Text(
-                        text = "Khuyến nghị 20-30 lệnh để tối đa hóa Exp",
-                        fontSize = 12.sp,
-                        color = TextMuted
-                    )
-                }
+        // Run until limit reached option
+        SettingToggleItem(
+            title = "Làm Đến Khi Báo Không Nhận Được Nữa (Tối Đa Giới Hạn Ngày)",
+            description = "Tự động nhận nhiệm vụ và đánh liên tục không ngừng cho đến khi NPC báo đã đạt giới hạn hôm nay / không thể nhận thêm.",
+            checked = punishEvilConfig.runUntilLimitReached,
+            onCheckedChange = { checked -> onUpdatePunishEvilConfig { it.copy(runUntilLimitReached = checked) } },
+            testTag = "switch_run_until_limit"
+        )
 
+        // Daily Tokens Selector (if not running until limit or as backup target)
+        if (!punishEvilConfig.runUntilLimitReached) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = InkCard),
+                shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, InkCardBorder),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF0F1814))
-                        .border(1.dp, Color(0xFF263A32), RoundedCornerShape(8.dp))
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(
-                        onClick = {
-                            if (punishEvilConfig.dailyTokensToUse > 5) {
-                                onUpdatePunishEvilConfig { it.copy(dailyTokensToUse = it.dailyTokensToUse - 5) }
-                            }
-                        },
-                        modifier = Modifier.size(36.dp).testTag("btn_decrease_tokens")
-                    ) {
-                        Icon(Icons.Default.Remove, contentDescription = "Giảm", tint = TextPrimary)
+                    Column {
+                        Text(
+                            text = "Số Trừng Ác Lệnh Mục Tiêu",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = "Dừng lại khi làm đủ số lệnh đã chọn",
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
                     }
 
-                    Text(
-                        text = "${punishEvilConfig.dailyTokensToUse}",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = CrimsonPrimary,
-                        modifier = Modifier.padding(horizontal = 10.dp)
-                    )
-
-                    IconButton(
-                        onClick = {
-                            if (punishEvilConfig.dailyTokensToUse < 50) {
-                                onUpdatePunishEvilConfig { it.copy(dailyTokensToUse = it.dailyTokensToUse + 5) }
-                            }
-                        },
-                        modifier = Modifier.size(36.dp).testTag("btn_increase_tokens")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF0F1814))
+                            .border(1.dp, Color(0xFF263A32), RoundedCornerShape(8.dp))
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Tăng", tint = TextPrimary)
+                        IconButton(
+                            onClick = {
+                                if (punishEvilConfig.dailyTokensToUse > 5) {
+                                    onUpdatePunishEvilConfig { it.copy(dailyTokensToUse = it.dailyTokensToUse - 5) }
+                                }
+                            },
+                            modifier = Modifier.size(36.dp).testTag("btn_decrease_tokens")
+                        ) {
+                            Icon(Icons.Default.Remove, contentDescription = "Giảm", tint = TextPrimary)
+                        }
+
+                        Text(
+                            text = "${punishEvilConfig.dailyTokensToUse}",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CrimsonPrimary,
+                            modifier = Modifier.padding(horizontal = 10.dp)
+                        )
+
+                        IconButton(
+                            onClick = {
+                                if (punishEvilConfig.dailyTokensToUse < 100) {
+                                    onUpdatePunishEvilConfig { it.copy(dailyTokensToUse = it.dailyTokensToUse + 5) }
+                                }
+                            },
+                            modifier = Modifier.size(36.dp).testTag("btn_increase_tokens")
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Tăng", tint = TextPrimary)
+                        }
                     }
                 }
             }

@@ -142,17 +142,17 @@ fun GuildScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Số Vòng Nhiệm Vụ Mỗi Ngày",
+                        text = "Số Vòng Nhiệm Vụ Bang Mỗi Ngày",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                     Text(
-                        text = "Mặc định 10 vòng hoàn thành đủ điểm năng động",
+                        text = "Chuỗi 50 vòng Hội Vụ Bang chuẩn theo game Tàng Long Bất Bại",
                         fontSize = 12.sp,
-                        color = TextMuted
+                        color = TextJade
                     )
                 }
 
@@ -165,8 +165,8 @@ fun GuildScreen(
                 ) {
                     IconButton(
                         onClick = {
-                            if (guildConfig.targetLoops > 1) {
-                                onUpdateGuildConfig { it.copy(targetLoops = it.targetLoops - 1) }
+                            if (guildConfig.targetLoops > 5) {
+                                onUpdateGuildConfig { it.copy(targetLoops = it.targetLoops - 5) }
                             }
                         },
                         modifier = Modifier.size(36.dp).testTag("btn_decrease_guild_loops")
@@ -184,8 +184,8 @@ fun GuildScreen(
 
                     IconButton(
                         onClick = {
-                            if (guildConfig.targetLoops < 30) {
-                                onUpdateGuildConfig { it.copy(targetLoops = it.targetLoops + 1) }
+                            if (guildConfig.targetLoops < 100) {
+                                onUpdateGuildConfig { it.copy(targetLoops = it.targetLoops + 5) }
                             }
                         },
                         modifier = Modifier.size(36.dp).testTag("btn_increase_guild_loops")
