@@ -42,6 +42,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.entity.BotConfigEntity
+import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.ui.platform.LocalContext
+import com.example.service.AutoClickerAccessibilityService
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import com.example.data.entity.DailyStatsEntity
 import com.example.engine.LiveBotState
 import com.example.model.TaskCategory
@@ -98,6 +104,89 @@ fun MainDashboardScreen(
             onToggleBlackScreen = onToggleBlackScreen,
             onToggleFloatingWidget = onToggleFloatingWidget
         )
+
+        // Banner Hướng Dẫn Tự Động Chạm Trực Tiếp Trên Màn Hình Game Tàng Long
+        val context = LocalContext.current
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF13221C)),
+            shape = RoundedCornerShape(14.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, JadePrimary.copy(alpha = 0.5f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Surface(
+                            color = Color(0xFF0F3B29),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.TouchApp,
+                                    contentDescription = "Chạm Tự Động",
+                                    tint = JadePrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "Tự Động Chạm Trực Tiếp Trên Game",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextJade
+                            )
+                            Text(
+                                text = "Bật Trợ Năng & Bong Bóng Nổi để auto chạm NPC Ngô Giới",
+                                fontSize = 11.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { AutoClickerAccessibilityService.openAccessibilitySettings(context) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E3A2F)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f).height(38.dp)
+                    ) {
+                        Text("1. Bật Trợ Năng", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextJade)
+                    }
+
+                    Button(
+                        onClick = onToggleFloatingWidget,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (liveState.isFloatingWidgetVisible) JadePrimary else Color(0xFF263A32)
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f).height(38.dp)
+                    ) {
+                        Text(
+                            if (liveState.isFloatingWidgetVisible) "Đang Bật Bóng Nổi" else "2. Bật Bóng Nổi",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (liveState.isFloatingWidgetVisible) Color.Black else TextPrimary
+                        )
+                    }
+                }
+            }
+        }
 
         // 2. Live Bot Monitor & Radar
         BotLiveMonitorCard(liveState = liveState)

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tàng Long Auto</string>
+    <string name="accessibility_service_description">Dịch vụ trợ năng Tàng Long Auto cho phép tự động thực hiện các thao tác chạm và cử chỉ trên màn hình game Tàng Long Bất Bại Mobile (chạm NPC Ngô Giới, nhận nhiệm vụ, xuất chiêu).</string>
 </resources>

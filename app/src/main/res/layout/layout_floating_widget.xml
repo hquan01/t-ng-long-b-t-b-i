@@ -27,8 +27,8 @@
         android:visibility="gone"
         android:layout_marginStart="8dp"
         android:background="@drawable/bg_floating_panel"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
         android:paddingTop="6dp"
         android:paddingBottom="6dp">
 
@@ -40,25 +40,64 @@
             android:textColor="#FFFFFF"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:layout_marginEnd="10dp" />
+            android:maxWidth="140dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:layout_marginEnd="8dp" />
 
+        <!-- Nút Bắt đầu / Tạm dừng Auto Click trên màn hình game -->
         <ImageView
             android:id="@+id/btn_floating_pause_resume"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:src="@android:drawable/ic_media_play"
             android:background="@drawable/bg_floating_btn"
-            android:padding="4dp"
-            android:contentDescription="Pause/Resume"
+            android:padding="5dp"
+            android:contentDescription="Bắt đầu / Tạm dừng"
             android:layout_marginEnd="6dp" />
 
+        <!-- Nút thêm điểm chạm mục tiêu (Target 1, 2, 3...) -->
+        <ImageView
+            android:id="@+id/btn_floating_add_target"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:src="@android:drawable/ic_input_add"
+            android:background="@drawable/bg_floating_btn"
+            android:padding="5dp"
+            android:contentDescription="Thêm điểm chạm mục tiêu"
+            android:layout_marginEnd="6dp" />
+
+        <!-- Nút xóa tất cả điểm chạm -->
+        <ImageView
+            android:id="@+id/btn_floating_clear_targets"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:background="@drawable/bg_floating_btn"
+            android:padding="5dp"
+            android:contentDescription="Xóa điểm chạm"
+            android:layout_marginEnd="6dp" />
+
+        <!-- Nút cấp quyền Trợ Năng Accessibility nếu chưa bật -->
+        <ImageView
+            android:id="@+id/btn_floating_accessibility"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:background="@drawable/bg_floating_btn"
+            android:padding="5dp"
+            android:contentDescription="Bật Trợ Năng"
+            android:visibility="gone"
+            android:layout_marginEnd="6dp" />
+
+        <!-- Nút Mở bảng điều khiển chính ứng dụng -->
         <ImageView
             android:id="@+id/btn_floating_open_app"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:src="@android:drawable/ic_menu_preferences"
             android:background="@drawable/bg_floating_btn"
-            android:padding="4dp"
+            android:padding="5dp"
             android:contentDescription="Mở ứng dụng" />
     </LinearLayout>
 

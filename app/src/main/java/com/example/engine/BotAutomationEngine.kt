@@ -219,45 +219,76 @@ object BotAutomationEngine {
         val evilConfig = repo.punishEvilConfig.firstOrNull()
         val evilLvl = evilConfig?.evilLevel ?: EvilLevel.CAP_70_80
         val isUntilLimit = evilConfig?.runUntilLimitReached ?: true
-        val targetTokens = if (isUntilLimit) "Tối Đa Giới Hạn Ngày" else "${evilConfig?.dailyTokensToUse ?: 50} lệnh"
+        val targetTokens = if (isUntilLimit) "Chạy đến khi hết hạn nhận hôm nay" else "${evilConfig?.dailyTokensToUse ?: 50} lệnh"
+        val newEvilCount = _liveState.value.sessionEvils + 1
 
+        // BƯỚC 1: Tìm đường đến Tổng bắt đầu Tô Châu - Ngô Giới để đối thoại và nhận nhiệm vụ Trừng Trị Hung Đồ
         _liveState.value = _liveState.value.copy(
             currentCategory = TaskCategory.PUNISH_EVIL,
-            currentMapName = "Hắc Hổ Nhai - Sào Huyệt Ác Nhân",
-            actionText = "Trừng Ác: Quét ác nhân ${evilLvl.levelName} (Chế độ: $targetTokens)...",
-            subActionDetail = "Tự động nhận lệnh bài từ NPC, kiểm tra giới hạn lượt hôm nay và di chuyển tới mục tiêu"
+            currentMapName = "Thành Tô Châu - NPC Ngô Giới",
+            actionText = "Bước 1/8: Tìm Tổng bắt đầu Tô Châu - Ngô Giới nhận [Trừng Trị Hung Đồ]",
+            subActionDetail = "Tự động đối thoại NPC Ngô Giới, nhận nhiệm vụ và lệnh bài ($targetTokens)"
         )
         delay(randomJitter(minDelay, maxDelay))
 
-        // Combat simulation
+        // BƯỚC 2: Mở túi đồ -> Ô Nhiệm Vụ -> Tìm Trừng Ác Lệnh -> Ấn Sử Dụng
         _liveState.value = _liveState.value.copy(
-            actionText = "Đang thi triển liên chiêu môn phái tiêu diệt Đầu Mục Ác Nhân...",
-            subActionDetail = "Tung combo: Tuyệt kỹ trấn phái -> Định thân -> Bạo kích",
-            playerHpPercent = 86,
-            playerMpPercent = 74
+            actionText = "Bước 2/8: Mở Túi Đồ -> Ô Nhiệm Vụ -> Sử dụng Trừng Ác Lệnh",
+            subActionDetail = "Truy cập túi đồ cá nhân, chọn thẻ Nhiệm Vụ, click 'Trừng Ác Lệnh' và bấm Sử Dụng"
         )
-        delay(randomJitter(minDelay + 500, maxDelay + 1000))
+        delay(randomJitter(minDelay, maxDelay))
 
-        val exp = 35000
-        val gold = 4500
-        val newEvilCount = _liveState.value.sessionEvils + 1
+        // BƯỚC 3 & 4: Đọc tọa độ gợi ý & ấn tọa độ để tự di chuyển đến sào huyệt Đầu Mục Ác Nhân
         _liveState.value = _liveState.value.copy(
+            actionText = "Bước 3-4/8: Đọc gợi ý tọa độ -> Di chuyển đến Sào Huyệt Ác Nhân",
+            subActionDetail = "Hệ thống thông báo: 'Các hạ phải đến (Tọa độ) mới có thể dùng lệnh' -> Tự click tọa độ di chuyển"
+        )
+        delay(randomJitter(minDelay + 400, maxDelay + 800))
+
+        // BƯỚC 5: Đến tọa độ chỉ định -> Xuống tọa kỵ -> Mở túi đồ (Ô Nhiệm Vụ) -> Bấm Sử Dụng Trừng Ác Lệnh
+        _liveState.value = _liveState.value.copy(
+            currentMapName = "Sào Huyệt Ác Nhân (${evilLvl.levelName})",
+            actionText = "Bước 5/8: Đến tọa độ -> Xuống tọa kỵ -> Sử dụng Trừng Ác Lệnh gọi quái",
+            subActionDetail = "Tự động xuống ngựa/tọa kỵ, mở túi đồ nhiệm vụ và kích hoạt Trừng Ác Lệnh triệu hồi Ngô Nhân Hách"
+        )
+        delay(randomJitter(minDelay, maxDelay))
+
+        // BƯỚC 6: Bật Auto đánh Ngô Nhân Hách -> Tiêu diệt quái nhặt Tàng Bảo Đồ -> Tắt Auto
+        _liveState.value = _liveState.value.copy(
+            actionText = "Bước 6/8: Bật Auto đánh Ngô Nhân Hách -> Nhặt Tàng Bảo Đồ -> Tắt Auto",
+            subActionDetail = "Kích hoạt chế độ Auto chiến đấu môn phái. Sau khi trảm sát quái và nhận Tàng Bảo Đồ, tắt Auto"
+        )
+        delay(randomJitter(minDelay + 600, maxDelay + 1200))
+
+        // BƯỚC 7: Vào túi đồ chọn Bạch Sắc Định Vị Phù -> Ấn sử dụng để bay về Tô Châu
+        _liveState.value = _liveState.value.copy(
+            currentMapName = "Thành Tô Châu",
+            actionText = "Bước 7/8: Sử dụng [Bạch Sắc Định Vị Phù] dịch chuyển về Tô Châu",
+            subActionDetail = "Mở túi đồ, kích hoạt Bạch Sắc Định Vị Phù để tức thì quay về trung tâm thành Tô Châu"
+        )
+        delay(randomJitter(minDelay, maxDelay))
+
+        // BƯỚC 8: Lên tọa kỵ -> Tìm NPC Ngô Giới trả nhiệm vụ -> Lặp lại đến khi hết hạn
+        val exp = 38000
+        val gold = 5200
+        _liveState.value = _liveState.value.copy(
+            currentMapName = "Thành Tô Châu - NPC Ngô Giới",
             sessionExp = _liveState.value.sessionExp + exp,
             sessionGold = _liveState.value.sessionGold + gold,
             sessionEvils = newEvilCount,
-            playerHpPercent = 95,
-            playerMpPercent = 90,
-            actionText = "Đã trảm sát thành công ${evilLvl.levelName} (Lượt #$newEvilCount)!",
-            subActionDetail = "Mở Rương Trừng Ác nhận $exp Exp & $gold Vàng. Tự động nhận lượt tiếp theo..."
+            playerHpPercent = 100,
+            playerMpPercent = 95,
+            actionText = "Bước 8/8: Lên tọa kỵ -> Gặp Ngô Giới trả nhiệm vụ (Lượt #$newEvilCount)!",
+            subActionDetail = "Nhận thưởng Exp, Vàng, Tàng Bảo Đồ và tiếp tục vòng tiếp theo cho đến khi Ngô Giới báo hết hạn hôm nay"
         )
         repo.addLog(
             BotLogEntity(
                 category = "TRỪNG ÁC",
-                actionText = "Hoàn thành vòng Trừng Ác #$newEvilCount (${evilLvl.levelName})",
-                detail = "Tiêu diệt Đầu Mục Ác Nhân. Tiếp tục quét lệnh bài đến khi NPC báo hết lượt.",
+                actionText = "Hoàn thành vòng Trừng Trị Hung Đồ #$newEvilCount (Trảm Ngô Nhân Hách)",
+                detail = "Quy trình 8 bước: Nhận Ngô Giới -> Dùng Lệnh bài -> Di chuyển tọa độ -> Xuống tọa kỵ -> Đánh Ngô Nhân Hách -> Nhặt Tàng Bảo Đồ -> Dùng Phù về Tô Châu -> Trả nhiệm vụ.",
                 expEarned = exp,
                 goldEarned = gold,
-                itemDrop = "Rương Hoàng Kim Trừng Ác",
+                itemDrop = "Tàng Bảo Đồ, Rương Trừng Ác",
                 isHighlight = true
             )
         )

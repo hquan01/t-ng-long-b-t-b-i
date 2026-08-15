@@ -116,7 +116,7 @@ fun PunishEvilScreen(
                                 color = CrimsonPrimary
                             )
                             Text(
-                                text = "Săn lùng ác nhân, dùng lệnh bài & nhặt rương",
+                                text = "Nhận & Trả tại NPC Tổng bắt đầu Tô Châu - Ngô Giới",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
@@ -132,6 +132,47 @@ fun PunishEvilScreen(
                         },
                         testTag = "switch_punish_evil_enabled",
                         modifier = Modifier.width(60.dp)
+                    )
+                }
+            }
+        }
+
+        // Chi Tiết Quy Trình 8 Bước Auto Trừng Trị Hung Đồ Chuẩn 100% Theo Game
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF161C19)),
+            shape = RoundedCornerShape(14.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, JadePrimary.copy(alpha = 0.6f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Quy Trình 8 Bước Auto Trừng Trị Hung Đồ:",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextJade
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                val steps = listOf(
+                    "1. Tự động tìm đường đến Tổng bắt đầu Tô Châu - Ngô Giới đối thoại & nhận nhiệm vụ [Trừng Trị Hung Đồ].",
+                    "2. Mở Túi Đồ -> Chọn thẻ ô [Nhiệm Vụ] -> Tìm Trừng Ác Lệnh -> Ấn [Sử Dụng].",
+                    "3. Hệ thống hiện hướng dẫn: \"Các hạ phải đến (Tọa Độ) mới có thể dùng Trừng Ác Lệnh\".",
+                    "4. Tự động ấn vào [Tọa Độ Gợi Ý] để nhân vật tự phi thân di chuyển đến sào huyệt truy kích Đầu Mục Ác Nhân.",
+                    "5. Khi đến tọa độ chỉ định: Tự động xuống tọa kỵ -> Mở Túi Đồ (Ô Nhiệm Vụ) -> Chọn Trừng Ác Lệnh ấn [Sử Dụng] để gọi quái.",
+                    "6. Tự động bật Auto xuất chiêu đánh bại quái [Ngô Nhân Hách] -> Nhặt vật phẩm rơi [Tàng Bảo Đồ] -> Tắt Auto.",
+                    "7. Vào Túi Đồ chọn vật phẩm [Bạch Sắc Định Vị Phù] ấn [Sử Dụng] để lập tức bay về thành Tô Châu.",
+                    "8. Lên tọa kỵ và tìm NPC Ngô Giới trả nhiệm vụ. Tự động lặp lại liên tục cho đến khi Ngô Giới báo \"Đã hết hạn nhận nhiệm vụ hôm nay\"."
+                )
+
+                steps.forEach { stepText ->
+                    Text(
+                        text = stepText,
+                        fontSize = 11.sp,
+                        color = TextPrimary,
+                        lineHeight = 16.sp,
+                        modifier = Modifier.padding(vertical = 2.dp)
                     )
                 }
             }
